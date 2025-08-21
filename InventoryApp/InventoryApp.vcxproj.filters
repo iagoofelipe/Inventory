@@ -36,7 +36,7 @@
       <Filter>Models</Filter>
     </ClCompile>
     <ClCompile Include="AppController.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Controllers</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -56,7 +56,7 @@
       <Filter>Models</Filter>
     </ClInclude>
     <ClInclude Include="AppController.h">
-      <Filter>Header Files</Filter>
+      <Filter>Controllers</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -3,7 +3,6 @@
 #include <wx/wx.h>
 
 const int WIN_SPACE_BETWEEN = 10;
-const int WIN_MARGIN = 20;
 
 struct Product
 {

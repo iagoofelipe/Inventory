@@ -2,6 +2,7 @@
 #include "AppModel.h"
 
 #include <wx/spinctrl.h>
+#include <wx/statline.h>
 
 wxDEFINE_EVENT(EVT_MOVREG_SAVE_REQUIRED, wxCommandEvent);
 
@@ -29,6 +30,8 @@ MovementRegistryView::MovementRegistryView(wxWindow* parent, wxWindowID id)
 
 	// Panel Sizer
 	sizer->Add(lbTitle);
+	sizer->AddSpacer(WIN_SPACE_BETWEEN);
+	sizer->Add(new wxStaticLine(this), 0, wxEXPAND);
 	sizer->AddSpacer(WIN_SPACE_BETWEEN);
 	sizer->Add(radioSizer);
 	sizer->AddSpacer(WIN_SPACE_BETWEEN);

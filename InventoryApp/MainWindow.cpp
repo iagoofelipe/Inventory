@@ -2,15 +2,40 @@
 #include "AppModel.h"
 
 #include <wx/spinctrl.h>
+#include <wx/statline.h>
+
+wxDEFINE_EVENT(EVT_VIEW_MOVREG_UPDATED, wxCommandEvent);
 
 MainWindow::MainWindow(const wxString& title)
 	: wxFrame(nullptr, wxID_ANY, title, wxDefaultPosition, wxSize(800, 600))
+	, movementRegistryView(nullptr)
+	, mainContentPanel(nullptr)
+	, currentButton(nullptr)
 {
 	SetFont(wxFont(12, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL));
 	SetBackgroundColour(wxColour());
 
-	wxBoxSizer* sizer = new wxBoxSizer(wxVERTICAL);
-	sizer->Add(movementRegistryView = new MovementRegistryView(this), 1, wxEXPAND | wxALL, WIN_MARGIN);
+	wxPanel* navPanel = new wxPanel(this, wxID_ANY);
+	btnHome = new wxButton(navPanel, wxID_ANY, "Home");
+	btnRegistry = new wxButton(navPanel, wxID_ANY, "Registry");
+	btnNewProduct = new wxButton(navPanel, wxID_ANY, "New Product");
+
+	navPanel->SetWindowStyle(wxBORDER_THEME);
+
+	wxBoxSizer* navSizer = new wxBoxSizer(wxVERTICAL);
+	wxBoxSizer* sizer = new wxBoxSizer(wxHORIZONTAL);
+
+	// Navigation Sizer
+	wxSizerFlags navFlags = wxSizerFlags().Expand().Border(wxLEFT | wxRIGHT | wxTOP, WIN_SPACE_BETWEEN);
+	navSizer->Add(btnHome, navFlags);
+	navSizer->Add(btnRegistry, navFlags);
+	navSizer->Add(btnNewProduct, navFlags);
+
+	navPanel->SetSizer(navSizer);
+
+	// Main Sizer
+	sizer->Add(navPanel, 0, wxEXPAND | wxALL, WIN_SPACE_BETWEEN);
+	sizer->Add(mainContentPanel = new wxPanel(this), 1, wxEXPAND | wxRIGHT | wxTOP | wxBOTTOM, WIN_SPACE_BETWEEN);
 
 	// Window properties
 	SetSizer(sizer);
@@ -19,31 +44,57 @@ MainWindow::MainWindow(const wxString& title)
 	Center();
 
 	// Event bindings
-	Bind(EVT_MOVREG_SAVE_REQUIRED, &MainWindow::on_movement_saveRequired, this);
 	Bind(wxEVT_CLOSE_WINDOW, &MainWindow::OnClose, this);
+	btnHome->Bind(wxEVT_BUTTON, [&](wxCommandEvent&) { SetContent(HOME); });
+	btnRegistry->Bind(wxEVT_BUTTON, [&](wxCommandEvent&) { SetContent(REGISTRY); });
+	btnNewProduct->Bind(wxEVT_BUTTON, [&](wxCommandEvent&) { SetContent(NEW_PRODUCT); });
 }
 
-void MainWindow::on_movement_saveRequired(wxCommandEvent& event)
+void MainWindow::SetContent(Content option)
 {
-	Movement* mov = (Movement*) event.GetClientData();
+	if (currentButton)
+		currentButton->Enable();
 
-	wxMessageBox(wxString::Format("Movement saved: Product ID %d, Quantity %u, Value %.2f",
-		mov->productId, mov->quantity, mov->totalValue), "Movement Saved", wxOK | wxICON_INFORMATION, this);
-
-	DestroyChildren();
-
+	mainContentPanel->DestroyChildren();
 	wxBoxSizer* sizer = new wxBoxSizer(wxVERTICAL);
+	wxSizerFlags flags = wxSizerFlags(1).Expand();
 
-	sizer->AddStretchSpacer();
-	sizer->Add(new wxStaticText(this, wxID_ANY, "Novo conteúdo"), 0, wxALIGN_CENTER_HORIZONTAL);
-	sizer->Add(new wxButton(this, wxID_ANY, "Clique aqui"));
-	sizer->AddStretchSpacer();
+	switch (option)
+	{
+	case HOME:
+		currentButton = btnHome;
+		sizer->Add(new wxPanel(mainContentPanel), flags);
+		break;
 
-	SetSizer(sizer);
+	case REGISTRY:
+		currentButton = btnRegistry;
+		sizer->Add(movementRegistryView = new MovementRegistryView(mainContentPanel), flags);
+		break;
+
+	case NEW_PRODUCT:
+		currentButton = btnNewProduct;
+		sizer->Add(new wxPanel(mainContentPanel), flags);
+		break;
+	}
+
+	currentButton->Disable();
+	mainContentPanel->SetSizer(sizer);
 	Layout();
+
+	// processing events
+	if(option == REGISTRY)
+	{
+		wxCommandEvent evt(EVT_VIEW_MOVREG_UPDATED, GetId());
+		evt.SetClientData(movementRegistryView);
+		evt.SetEventObject(this);
+		ProcessWindowEvent(evt);
+	}
 }
 
-void MainWindow::OnClose(wxCloseEvent& event)
+MovementRegistryView* MainWindow::GetMovementRegistryView(MovementRegistryView* view) { return movementRegistryView; }
+
+
+void MainWindow::OnClose(wxCloseEvent&)
 {
 	delete pAppModel;
 	Destroy();
