@@ -15,6 +15,7 @@ public:
 	{
 		HOME,
 		REGISTRY,
+		EDIT_PRODUCT,
 		NEW_PRODUCT
 	};
 
@@ -27,6 +28,7 @@ private:
 	wxButton* currentButton;
 	wxButton* btnHome;
 	wxButton* btnRegistry;
+	wxButton* btnEditProduct;
 	wxButton* btnNewProduct;
 
 	//void on_movement_saveRequired(wxCommandEvent& event);

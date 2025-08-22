@@ -1,24 +1,26 @@
 #include "MovementRegistryView.h"
 #include "AppModel.h"
 
-#include <wx/spinctrl.h>
 #include <wx/statline.h>
 
 wxDEFINE_EVENT(EVT_MOVREG_SAVE_REQUIRED, wxCommandEvent);
+wxDEFINE_EVENT(EVT_MOVREG_EDIT_REQUIRED, wxCommandEvent);
+wxDEFINE_EVENT(EVT_MOVREG_ADD_REQUIRED, wxCommandEvent);
 
 MovementRegistryView::MovementRegistryView(wxWindow* parent, wxWindowID id)
 	: wxPanel(parent, id)
 {
 	wxStaticText* lbTitle = new wxStaticText(this, wxID_ANY, "Movement Regitry");
-	wxRadioButton* rbIn = new wxRadioButton(this, wxID_ANY, "In");
-	wxRadioButton* rbOut = new wxRadioButton(this, wxID_ANY, "Out");
-	wxComboBox* cbProduct = new wxComboBox(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0, nullptr, wxCB_READONLY);
-	wxButton* btnAddProduct = new wxButton(this, wxID_ANY, "add");
-	wxSpinCtrl* scQuantity = new wxSpinCtrl(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxSP_ARROW_KEYS, 0, 10000);
-	wxSpinCtrlDouble* scPrice = new wxSpinCtrlDouble(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxSP_ARROW_KEYS, 0.0, 1000000.0, 0.0, 0.01);
-	wxSpinCtrlDouble* scPriceTotal = new wxSpinCtrlDouble(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxSP_ARROW_KEYS, 0.0, 1000000.0, 0.0, 0.01);
-	wxButton* btnClear = new wxButton(this, wxID_ANY, "clear");
-	wxButton* btnSave = new wxButton(this, wxID_ANY, "save");
+	rbIn = new wxRadioButton(this, wxID_ANY, "In");
+	rbOut = new wxRadioButton(this, wxID_ANY, "Out");
+	cbProduct = new wxComboBox(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0, nullptr, wxCB_READONLY);
+	btnAdd = new wxButton(this, wxID_ANY, "add");
+	btnEdit = new wxButton(this, wxID_ANY, "edit");
+	scQuantity = new wxSpinCtrl(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxSP_ARROW_KEYS, 0, 10000);
+	scPrice = new wxSpinCtrlDouble(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxSP_ARROW_KEYS, 0.0, 1000000.0, 0.0, 0.01);
+	scPriceTotal = new wxSpinCtrlDouble(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxSP_ARROW_KEYS, 0.0, 1000000.0, 0.0, 0.01);
+	btnClear = new wxButton(this, wxID_ANY, "clear");
+	btnSave = new wxButton(this, wxID_ANY, "save");
 
 	wxBoxSizer* sizer = new wxBoxSizer(wxVERTICAL);
 	wxBoxSizer* radioSizer = new wxBoxSizer(wxHORIZONTAL);
@@ -56,8 +58,9 @@ MovementRegistryView::MovementRegistryView(wxWindow* parent, wxWindowID id)
 	gridSizer->Add(scPriceTotal, 0, wxEXPAND);
 
 	// Products Sizer
-	productSizer->Add(cbProduct, 1, wxRIGHT, WIN_SPACE_BETWEEN);
-	productSizer->Add(btnAddProduct);
+	productSizer->Add(cbProduct, 1);
+	productSizer->Add(btnEdit, 0, wxLEFT | wxRIGHT, WIN_SPACE_BETWEEN);
+	productSizer->Add(btnAdd);
 
 	// Button Sizer
 	btnSizer->AddStretchSpacer();
@@ -67,13 +70,22 @@ MovementRegistryView::MovementRegistryView(wxWindow* parent, wxWindowID id)
 	SetSizer(sizer);
 
 	// Event bindings
-	btnClear->Bind(wxEVT_BUTTON, &MovementRegistryView::OnClear, this);
+	btnClear->Bind(wxEVT_BUTTON, [&](wxCommandEvent&) { Clear(); });
 	btnSave->Bind(wxEVT_BUTTON, &MovementRegistryView::OnSave, this);
+	btnEdit->Bind(wxEVT_BUTTON, &MovementRegistryView::OnEdit, this);
+	btnAdd->Bind(wxEVT_BUTTON, &MovementRegistryView::OnAdd, this);
+
+	rbOut->SetValue(true);
 }
 
-void MovementRegistryView::OnClear(wxCommandEvent& event)
+void MovementRegistryView::Clear()
 {
-	wxMessageBox("Clear button clicked", "Info", wxOK | wxICON_INFORMATION, this);
+	rbIn->SetValue(false);
+	rbOut->SetValue(true);
+	cbProduct->SetSelection(wxNOT_FOUND);
+	scQuantity->SetValue(0);
+	scPrice->SetValue(0.0);
+	scPriceTotal->SetValue(0.0);
 }
 
 void MovementRegistryView::OnSave(wxCommandEvent& event)
@@ -81,10 +93,10 @@ void MovementRegistryView::OnSave(wxCommandEvent& event)
 	wxCommandEvent evt(EVT_MOVREG_SAVE_REQUIRED, GetId());
 	Movement* data = new Movement {
 		.productId = -1,
-		.isIn = true,
-		.quantity = 0,
-		.unitValue = 0.0,
-		.totalValue = 0.0
+		.isIn = rbIn->GetValue(),
+		.quantity = (unsigned int) scQuantity->GetValue(),
+		.unitValue = scPrice->GetValue(),
+		.totalValue = scPriceTotal->GetValue()
 	};
 
 	pAppModel->DeleteLater(data);
@@ -92,5 +104,19 @@ void MovementRegistryView::OnSave(wxCommandEvent& event)
 	evt.SetEventObject(this);
 	evt.SetClientData(data);
 
+	ProcessWindowEvent(evt);
+}
+
+void MovementRegistryView::OnEdit(wxCommandEvent& event)
+{
+	wxCommandEvent evt(EVT_MOVREG_EDIT_REQUIRED, GetId());
+	evt.SetEventObject(this);
+	ProcessWindowEvent(evt);
+}
+
+void MovementRegistryView::OnAdd(wxCommandEvent& event)
+{
+	wxCommandEvent evt(EVT_MOVREG_ADD_REQUIRED, GetId());
+	evt.SetEventObject(this);
 	ProcessWindowEvent(evt);
 }

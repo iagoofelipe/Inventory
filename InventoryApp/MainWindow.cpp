@@ -18,6 +18,7 @@ MainWindow::MainWindow(const wxString& title)
 	wxPanel* navPanel = new wxPanel(this, wxID_ANY);
 	btnHome = new wxButton(navPanel, wxID_ANY, "Home");
 	btnRegistry = new wxButton(navPanel, wxID_ANY, "Registry");
+	btnEditProduct = new wxButton(navPanel, wxID_ANY, "Edit Product");
 	btnNewProduct = new wxButton(navPanel, wxID_ANY, "New Product");
 
 	navPanel->SetWindowStyle(wxBORDER_THEME);
@@ -29,6 +30,7 @@ MainWindow::MainWindow(const wxString& title)
 	wxSizerFlags navFlags = wxSizerFlags().Expand().Border(wxLEFT | wxRIGHT | wxTOP, WIN_SPACE_BETWEEN);
 	navSizer->Add(btnHome, navFlags);
 	navSizer->Add(btnRegistry, navFlags);
+	navSizer->Add(btnEditProduct, navFlags);
 	navSizer->Add(btnNewProduct, navFlags);
 
 	navPanel->SetSizer(navSizer);
@@ -47,6 +49,7 @@ MainWindow::MainWindow(const wxString& title)
 	Bind(wxEVT_CLOSE_WINDOW, &MainWindow::OnClose, this);
 	btnHome->Bind(wxEVT_BUTTON, [&](wxCommandEvent&) { SetContent(HOME); });
 	btnRegistry->Bind(wxEVT_BUTTON, [&](wxCommandEvent&) { SetContent(REGISTRY); });
+	btnEditProduct->Bind(wxEVT_BUTTON, [&](wxCommandEvent&) { SetContent(EDIT_PRODUCT); });
 	btnNewProduct->Bind(wxEVT_BUTTON, [&](wxCommandEvent&) { SetContent(NEW_PRODUCT); });
 }
 
@@ -69,6 +72,11 @@ void MainWindow::SetContent(Content option)
 	case REGISTRY:
 		currentButton = btnRegistry;
 		sizer->Add(movementRegistryView = new MovementRegistryView(mainContentPanel), flags);
+		break;
+
+	case EDIT_PRODUCT:
+		currentButton = btnEditProduct;
+		sizer->Add(new wxPanel(mainContentPanel), flags);
 		break;
 
 	case NEW_PRODUCT:

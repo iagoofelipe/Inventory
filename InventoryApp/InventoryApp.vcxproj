@@ -141,6 +141,7 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MainWindow.cpp" />
     <ClCompile Include="MovementRegistryView.cpp" />
+    <ClCompile Include="ProductView.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AppController.h" />
@@ -149,6 +150,7 @@
     <ClInclude Include="InventoryApp.h" />
     <ClInclude Include="MainWindow.h" />
     <ClInclude Include="MovementRegistryView.h" />
+    <ClInclude Include="ProductView.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
