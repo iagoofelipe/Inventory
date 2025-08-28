@@ -16,9 +16,9 @@ MovementRegistryView::MovementRegistryView(wxWindow* parent, wxWindowID id)
 	cbProduct = new wxComboBox(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0, nullptr, wxCB_READONLY);
 	btnAdd = new wxButton(this, wxID_ANY, "add");
 	btnEdit = new wxButton(this, wxID_ANY, "edit");
-	scQuantity = new wxSpinCtrl(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxSP_ARROW_KEYS, 0, 10000);
-	scPrice = new wxSpinCtrlDouble(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxSP_ARROW_KEYS, 0.0, 1000000.0, 0.0, 0.01);
-	scPriceTotal = new wxSpinCtrlDouble(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxSP_ARROW_KEYS, 0.0, 1000000.0, 0.0, 0.01);
+	scQuantity = new wxSpinCtrl(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxSP_ARROW_KEYS, 0, MAX_PRODUCT_QUANTITY);
+	scPrice = new wxSpinCtrlDouble(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxSP_ARROW_KEYS, 0.0, MAX_UNIT_VALUE, 0.0, 0.01);
+	scPriceTotal = new wxSpinCtrlDouble(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxSP_ARROW_KEYS, 0.0, MAX_TOTAL_VALUE, 0.0, 0.01);
 	btnClear = new wxButton(this, wxID_ANY, "clear");
 	btnSave = new wxButton(this, wxID_ANY, "save");
 
@@ -28,7 +28,7 @@ MovementRegistryView::MovementRegistryView(wxWindow* parent, wxWindowID id)
 	wxBoxSizer* productSizer = new wxBoxSizer(wxHORIZONTAL);
 	wxBoxSizer* btnSizer = new wxBoxSizer(wxHORIZONTAL);
 
-	lbTitle->SetFont(wxFont(16, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL));
+	lbTitle->SetFont(TITLE_FONT);
 
 	// Panel Sizer
 	sizer->Add(lbTitle);
@@ -37,7 +37,7 @@ MovementRegistryView::MovementRegistryView(wxWindow* parent, wxWindowID id)
 	sizer->AddSpacer(WIN_SPACE_BETWEEN);
 	sizer->Add(radioSizer);
 	sizer->AddSpacer(WIN_SPACE_BETWEEN);
-	sizer->Add(gridSizer, 0, wxEXPAND);
+	sizer->Add(gridSizer, 1, wxEXPAND);
 	sizer->AddStretchSpacer();
 	sizer->Add(btnSizer, 0, wxEXPAND);
 

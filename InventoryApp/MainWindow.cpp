@@ -9,8 +9,11 @@ wxDEFINE_EVENT(EVT_VIEW_MOVREG_UPDATED, wxCommandEvent);
 MainWindow::MainWindow(const wxString& title)
 	: wxFrame(nullptr, wxID_ANY, title, wxDefaultPosition, wxSize(800, 600))
 	, movementRegistryView(nullptr)
+	, productView(nullptr)
+	, dashView(nullptr)
 	, mainContentPanel(nullptr)
 	, currentButton(nullptr)
+	, currentContent(__NONE)
 {
 	SetFont(wxFont(12, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL));
 	SetBackgroundColour(wxColour());
@@ -58,36 +61,54 @@ void MainWindow::SetContent(Content option)
 	if (currentButton)
 		currentButton->Enable();
 
-	mainContentPanel->DestroyChildren();
-	wxBoxSizer* sizer = new wxBoxSizer(wxVERTICAL);
-	wxSizerFlags flags = wxSizerFlags(1).Expand();
+	// checking if we need to recreate the content
+	bool productWasSet = productView != nullptr 
+		&& (currentContent == EDIT_PRODUCT || currentContent == NEW_PRODUCT),
+		productOption = option == EDIT_PRODUCT || option == NEW_PRODUCT;
 
-	switch (option)
+	if (!productWasSet || !productOption)
 	{
-	case HOME:
-		currentButton = btnHome;
-		sizer->Add(new wxPanel(mainContentPanel), flags);
-		break;
+		mainContentPanel->DestroyChildren();
+		wxBoxSizer* sizer = new wxBoxSizer(wxVERTICAL);
+		wxSizerFlags flags = wxSizerFlags(1).Expand();
 
-	case REGISTRY:
-		currentButton = btnRegistry;
-		sizer->Add(movementRegistryView = new MovementRegistryView(mainContentPanel), flags);
-		break;
+		switch (option)
+		{
+		case HOME:
+			currentButton = btnHome;
+			sizer->Add(dashView = new DashView(mainContentPanel), flags);
+			break;
 
-	case EDIT_PRODUCT:
-		currentButton = btnEditProduct;
-		sizer->Add(new wxPanel(mainContentPanel), flags);
-		break;
+		case REGISTRY:
+			currentButton = btnRegistry;
+			sizer->Add(movementRegistryView = new MovementRegistryView(mainContentPanel), flags);
+			break;
 
-	case NEW_PRODUCT:
-		currentButton = btnNewProduct;
-		sizer->Add(new wxPanel(mainContentPanel), flags);
-		break;
+		case EDIT_PRODUCT:
+			currentButton = btnEditProduct;
+			sizer->Add(productView = new ProductView(mainContentPanel, wxID_ANY, ProductView::MODE_EDIT), flags);
+			break;
+
+		case NEW_PRODUCT:
+			currentButton = btnNewProduct;
+			sizer->Add(productView = new ProductView(mainContentPanel), flags);
+			break;
+		}
+
+		mainContentPanel->SetSizer(sizer);
+		Layout();
+	}
+	else
+	{
+		bool editMode = option == EDIT_PRODUCT;
+		ProductView::Mode pvMode = editMode ? ProductView::MODE_EDIT : ProductView::MODE_ADD;
+		currentButton = editMode ? btnEditProduct : btnNewProduct;
+		
+		productView->SetMode(pvMode);
 	}
 
+	currentContent = option;
 	currentButton->Disable();
-	mainContentPanel->SetSizer(sizer);
-	Layout();
 
 	// processing events
 	if(option == REGISTRY)
@@ -99,8 +120,11 @@ void MainWindow::SetContent(Content option)
 	}
 }
 
-MovementRegistryView* MainWindow::GetMovementRegistryView(MovementRegistryView* view) { return movementRegistryView; }
+MovementRegistryView* MainWindow::GetMovementRegistryView() { return movementRegistryView; }
 
+ProductView* MainWindow::GetProductView() { return productView; }
+
+DashView* MainWindow::GetDashView() { return dashView; }
 
 void MainWindow::OnClose(wxCloseEvent&)
 {

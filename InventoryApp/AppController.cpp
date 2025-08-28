@@ -20,7 +20,7 @@ void AppController::SetView(MainWindow* view)
 void AppController::Initialize()
 {
 	SetView(new MainWindow("Inventory"));
-	view->SetContent(MainWindow::REGISTRY);
+	view->SetContent(MainWindow::HOME);
 
 	view->Show();
 }

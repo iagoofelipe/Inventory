@@ -1,0 +1,1 @@
+g++ InventoryServer/*.cpp -o x64/InventoryServer.exe -lws2_32; & ./x64/InventoryServer

@@ -41,6 +41,9 @@
     <ClCompile Include="ProductView.cpp">
       <Filter>Views</Filter>
     </ClCompile>
+    <ClCompile Include="DashView.cpp">
+      <Filter>Views</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="InventoryApp.h">
@@ -62,6 +65,9 @@
       <Filter>Views</Filter>
     </ClInclude>
     <ClInclude Include="ProductView.h">
+      <Filter>Views</Filter>
+    </ClInclude>
+    <ClInclude Include="DashView.h">
       <Filter>Views</Filter>
     </ClInclude>
   </ItemGroup>
