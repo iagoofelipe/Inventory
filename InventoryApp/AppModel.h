@@ -2,6 +2,7 @@
 
 #include "consts.h"
 #include "Database.h"
+#include "tools.h"
 
 #include <wx/event.h>
 #include <vector>
@@ -11,44 +12,47 @@ wxDECLARE_EVENT(EVT_APPMODEL_INITIALIZED, wxCommandEvent);
 wxDECLARE_EVENT(EVT_APPMODEL_REGS_UPDATED, wxCommandEvent);
 wxDECLARE_EVENT(EVT_APPMODEL_PRODUCTS_UPDATED, wxCommandEvent);
 
-class AppModel : public wxEvtHandler
+namespace inventory
 {
-public:
-	enum InitializationResult
+	class AppModel : public wxEvtHandler
 	{
-		ConfigRequired, DatabaseError, OK
+	public:
+		enum InitializationResult
+		{
+			ConfigRequired, InvalidConfig, DatabaseError, OK
+		};
+
+		AppModel(const AppModel&) = delete;
+		AppModel& operator=(const AppModel&) = delete;
+
+		void Initialize();
+		void UpdateValues();
+		const std::vector<Registry>& GetRegistries();
+		const std::vector<Product>& GetProducts();
+		const Registry& GetRegistryById(int id);
+		const Product& GetProductById(int id);
+		void SetDatabaseConnParams(const DatabaseConnParams& params);
+		const DatabaseConnParams& GetDatabaseConnParams();
+
+		static AppModel& getInstance();
+		static void Release();
+
+	private:
+		AppModel();
+		~AppModel();
+
+		void _initialize();
+		void dispatchInitialized(InitializationResult r);
+
+		static bool cleaned;
+		bool dbParamsSet;
+		Database& db;
+		Config& cfg;
+
+		std::vector<Registry> regs;
+		std::vector<Product> products;
+		std::map<int, Registry*> regsById;
+		std::map<int, Product*> productsById;
+		DatabaseConnParams dbParams;
 	};
-
-	AppModel(const AppModel&) = delete;
-	AppModel& operator=(const AppModel&) = delete;
-
-	void Initialize();
-	void UpdateValues();
-	const std::vector<Registry>& GetRegistries();
-	const std::vector<Product>& GetProducts();
-	const Registry& GetRegistryById(int id);
-	const Product& GetProductById(int id);
-
-	static AppModel& getInstance();
-	static void DeleteLater(ConfigParams* obj);
-	static void Release();
-	static ConfigParams GetConfig();
-	static void SetConfig(const ConfigParams& cfg);
-
-private:
-	AppModel();
-	~AppModel();
-
-	void _initialize();
-
-	static bool cleaned;
-	static std::vector<ConfigParams*> toDelete_ConfigParams;
-	static ConfigParams cfg;
-	static std::ofstream* logFile;
-
-	Database& db;
-	std::vector<Registry> regs;
-	std::vector<Product> products;
-	std::map<int, Registry*> regsById;
-	std::map<int, Product*> productsById;
-};
+}

@@ -4,12 +4,14 @@
 
 #include <wx/wx.h>
 
-class InventoryApp : public wxApp
+namespace inventory
 {
-public:
-	bool OnInit();
+	class InventoryApp : public wxApp
+	{
+	public:
+		bool OnInit();
 
-private:
-	AppController controller;
-};
-
+	private:
+		AppController controller;
+	};
+}

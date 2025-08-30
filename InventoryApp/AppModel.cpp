@@ -2,7 +2,6 @@
 #include "config.h"
 
 #include <wx/wx.h>
-#include <wx/log.h>
 
 #include <thread>
 #include <chrono>
@@ -11,151 +10,154 @@ wxDEFINE_EVENT(EVT_APPMODEL_INITIALIZED, wxCommandEvent);
 wxDEFINE_EVENT(EVT_APPMODEL_REGS_UPDATED, wxCommandEvent);
 wxDEFINE_EVENT(EVT_APPMODEL_PRODUCTS_UPDATED, wxCommandEvent);
 
-bool AppModel::cleaned = false;
-std::vector<ConfigParams*> AppModel::toDelete_ConfigParams{};
-ConfigParams AppModel::cfg{};
-std::ofstream* AppModel::logFile = new std::ofstream("app.log", std::ios::app);
-
-AppModel& AppModel::getInstance()
+namespace inventory
 {
-	static AppModel instance;
-	return instance;
-}
+	bool AppModel::cleaned = false;
 
-void AppModel::Initialize()
-{
-	wxLog::SetActiveTarget(new wxLogStream(logFile));
-
-	std::thread t(&AppModel::_initialize, this);
-	t.detach();
-}
-
-void AppModel::UpdateValues()
-{
-	db.getProducts(products);
-	db.getRegistries(regs);
-
-	regsById.clear();
-	productsById.clear();
-
-	for (Product& p : products) productsById[p.id] = &p;
-	for (Registry& r : regs) regsById[r.id] = &r;
-}
-
-const std::vector<Registry>& AppModel::GetRegistries()
-{
-	return regs;
-}
-
-const std::vector<Product>& AppModel::GetProducts()
-{
-	return products;
-}
-
-const Registry& AppModel::GetRegistryById(int id)
-{
-	return *regsById[id];
-}
-
-const Product& AppModel::GetProductById(int id)
-{
-	return *productsById[id];
-}
-
-void AppModel::DeleteLater(ConfigParams* obj)
-{
-	toDelete_ConfigParams.push_back(obj);
-}
-
-void AppModel::Release()
-{
-	if (cleaned)
-		return;
-
-	cleaned = true;
-	delete logFile;
-
-	// deleting pointers
-	for (auto ptr : toDelete_ConfigParams) delete ptr;
-
-	toDelete_ConfigParams.clear();
-}
-
-ConfigParams AppModel::GetConfig()
-{
-	return cfg;
-}
-
-void AppModel::SetConfig(const ConfigParams& cfg)
-{
-	AppModel::cfg = cfg;
-
-	setConfig("host", cfg.host.ToStdString());
-	setConfig("port", std::to_string(cfg.port));
-	setConfig("user", cfg.user.ToStdString());
-	setConfig("password", cfg.password.ToStdString());
-	setConfig("database", cfg.schema.ToStdString());
-	updateConfigFile();
-}
-
-AppModel::AppModel()
-	: wxEvtHandler()
-	, db(Database::getInstance())
-{
-}
-
-AppModel::~AppModel()
-{
-	Release();
-}
-
-void AppModel::_initialize()
-{
-	InitializationResult r;
-	bool error = false;
-
-	if (!loadConfigFile()) {
-		r = ConfigRequired;
-		error = true;
-
-		cfg.host.clear();
-		cfg.port = 0;
-		cfg.schema.clear();
-		cfg.user.clear();
-		cfg.password.clear();
-
-		wxLogError("[AppModell::initialize] configuration required");
-	}
-	else {
-		std::string _port = getConfig("port");
-
-		cfg.host = getConfig("host");
-		cfg.port = _port.empty() ? 0 : std::stoi(_port);
-		cfg.schema = getConfig("database");
-		cfg.user = getConfig("user");
-		cfg.password = getConfig("password");
+	AppModel& AppModel::getInstance()
+	{
+		static AppModel instance;
+		return instance;
 	}
 
-	if (!error && !db.connect()) {
-		r = DatabaseError;
-		error = true;
-
-		wxLogError("[AppModell::initialize] configuration required");
+	void AppModel::Initialize()
+	{
+		std::thread t(&AppModel::_initialize, this);
+		t.detach();
 	}
-	else {
+
+	void AppModel::UpdateValues()
+	{
+		db.getProducts(products);
+		db.getRegistries(regs);
+
+		regsById.clear();
+		productsById.clear();
+
+		for (Product& p : products) productsById[p.id] = &p;
+		for (Registry& r : regs) regsById[r.id] = &r;
+	}
+
+	const std::vector<Registry>& AppModel::GetRegistries()
+	{
+		return regs;
+	}
+
+	const std::vector<Product>& AppModel::GetProducts()
+	{
+		return products;
+	}
+
+	const Registry& AppModel::GetRegistryById(int id)
+	{
+		return *regsById[id];
+	}
+
+	const Product& AppModel::GetProductById(int id)
+	{
+		return *productsById[id];
+	}
+
+	void AppModel::SetDatabaseConnParams(const DatabaseConnParams& params)
+	{
+		dbParams = params;
+		dbParamsSet = true;
+
+		cfg.Set("host", params.host);
+		cfg.Set("port", std::to_string(params.port));
+		cfg.Set("user", params.user);
+		cfg.Set("password", params.password);
+		cfg.Set("database", params.schema);
+
+		cfg.UpdateFile();
+	}
+
+	const DatabaseConnParams& AppModel::GetDatabaseConnParams()
+	{
+		return dbParams;
+	}
+
+	void AppModel::Release()
+	{
+		if (cleaned)
+			return;
+
+		cleaned = true;
+	}
+
+	AppModel::AppModel()
+		: wxEvtHandler()
+		, db(Database::getInstance())
+		, cfg(Config::GetInstance())
+		, dbParamsSet(false)
+	{
+	}
+
+	AppModel::~AppModel()
+	{
+		Release();
+	}
+
+	void AppModel::_initialize()
+	{
+		// initialize config
+		if (!cfg.Initialize()) {
+			dbParamsSet = true;
+			dbParams.host = DB_DEF_HOST;
+			dbParams.user = DB_DEF_USER;
+			dbParams.schema = DB_DEF_SCHEMA;
+			dbParams.port = DB_DEF_PORT;
+			dbParams.password = DB_DEF_PASSWORD;
+			dispatchInitialized(InitializationResult::ConfigRequired);
+			return;
+		}
+
+		// validate config
+		if (!dbParamsSet) {
+			dbParamsSet = true;
+			dbParams.host = cfg["host"];
+			dbParams.user = cfg["user"];
+			dbParams.schema = cfg["database"];
+			dbParams.port = cfg["port"].empty() ? 0 : std::stoi(cfg["port"]);
+			dbParams.password = cfg["password"];
+		}
+
+		if (dbParams.host.empty() || dbParams.user.empty() || dbParams.schema.empty()) {
+			dispatchInitialized(InitializationResult::InvalidConfig);
+			return;
+		}
+
+		// try to connect with database
+		if (!db.connect(dbParams)) {
+			dispatchInitialized(InitializationResult::DatabaseError);
+			return;
+		}
+
 		UpdateValues();
+		dispatchInitialized(InitializationResult::OK);
 	}
 
-	if(!error) {
-		r = OK;
+	void AppModel::dispatchInitialized(InitializationResult r)
+	{
+		wxCommandEvent evt(EVT_APPMODEL_INITIALIZED);
+		
+		switch (r)
+		{
+		case ConfigRequired:
+			evt.SetString("Configuration no found");
+			break;
+
+		case InvalidConfig:
+			evt.SetString("The configuration is not valid");
+			break;
+
+		case DatabaseError:
+			evt.SetString("It was not possible to connect with database");
+			break;
+		}
+
+		evt.SetInt(r);
+		evt.SetEventObject(this);
+		wxQueueEvent(this, evt.Clone());
 	}
-
-	wxLogMessage("[AppModell::initialize] success");
-
-	// std::this_thread::sleep_for(std::chrono::milliseconds(500));
-
-	wxCommandEvent evt(EVT_APPMODEL_INITIALIZED);
-	evt.SetInt(r);
-	evt.SetEventObject(this);
-	wxQueueEvent(this, evt.Clone());
 }

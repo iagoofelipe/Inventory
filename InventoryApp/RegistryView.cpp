@@ -1,4 +1,5 @@
 #include "RegistryView.h"
+#include "tools.h"
 
 #include <wx/statline.h>
 
@@ -6,178 +7,182 @@ wxDEFINE_EVENT(EVT_REGVIEW_SAVE, wxCommandEvent);
 wxDEFINE_EVENT(EVT_REGVIEW_EDIT, wxCommandEvent);
 wxDEFINE_EVENT(EVT_REGVIEW_ADD, wxCommandEvent);
 
-RegistryView::RegistryView(wxWindow* parent, wxWindowID id)
-	: wxPanel(parent, id)
-	, model(AppModel::getInstance())
+namespace inventory
 {
-	wxStaticText* lbTitle = new wxStaticText(this, wxID_ANY, "Movement Regitry");
-	rbIn = new wxRadioButton(this, wxID_ANY, "In");
-	rbOut = new wxRadioButton(this, wxID_ANY, "Out");
-	cbCurrentDateTime = new wxCheckBox(this, wxID_ANY, "Current date and time");
-	cbProduct = new wxComboBox(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0, nullptr, wxCB_READONLY);
-	btnAdd = new wxButton(this, wxID_ANY, "add");
-	btnEdit = new wxButton(this, wxID_ANY, "edit");
-	scQuantity = new wxSpinCtrl(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxSP_ARROW_KEYS, 1, MAX_PRODUCT_QUANTITY);
-	scPrice = new wxSpinCtrlDouble(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxSP_ARROW_KEYS, 0.0, MAX_UNIT_VALUE, 0.0, 0.01);
-	scPriceTotal = new wxSpinCtrlDouble(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxSP_ARROW_KEYS, 0.0, MAX_TOTAL_VALUE, 0.0, 0.01);
-	dpDate = new wxDatePickerCtrl(this, wxID_ANY);
-	tpTime = new wxTimePickerCtrl(this, wxID_ANY);
-	btnClear = new wxButton(this, wxID_ANY, "clear");
-	btnSave = new wxButton(this, wxID_ANY, "save");
 
-	wxBoxSizer* sizer = new wxBoxSizer(wxVERTICAL);
-	wxBoxSizer* radioSizer = new wxBoxSizer(wxHORIZONTAL);
-	wxFlexGridSizer* gridSizer = new wxFlexGridSizer(2, WIN_SPACE_BETWEEN, WIN_SPACE_BETWEEN);
-	wxBoxSizer* productSizer = new wxBoxSizer(wxHORIZONTAL);
-	wxBoxSizer* datetimeSizer = new wxBoxSizer(wxHORIZONTAL);
-	wxBoxSizer* btnSizer = new wxBoxSizer(wxHORIZONTAL);
+	RegistryView::RegistryView(wxWindow* parent, wxWindowID id)
+		: wxPanel(parent, id)
+		, model(AppModel::getInstance())
+	{
+		wxStaticText* lbTitle = new wxStaticText(this, wxID_ANY, "Movement Regitry");
+		rbIn = new wxRadioButton(this, wxID_ANY, "In");
+		rbOut = new wxRadioButton(this, wxID_ANY, "Out");
+		cbCurrentDateTime = new wxCheckBox(this, wxID_ANY, "Current date and time");
+		cbProduct = new wxComboBox(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0, nullptr, wxCB_READONLY);
+		btnAdd = new wxButton(this, wxID_ANY, "add");
+		btnEdit = new wxButton(this, wxID_ANY, "edit");
+		scQuantity = new wxSpinCtrl(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxSP_ARROW_KEYS, 1, MAX_PRODUCT_QUANTITY);
+		scPrice = new wxSpinCtrlDouble(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxSP_ARROW_KEYS, 0.0, MAX_UNIT_VALUE, 0.0, 0.01);
+		scPriceTotal = new wxSpinCtrlDouble(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxSP_ARROW_KEYS, 0.0, MAX_TOTAL_VALUE, 0.0, 0.01);
+		dpDate = new wxDatePickerCtrl(this, wxID_ANY);
+		tpTime = new wxTimePickerCtrl(this, wxID_ANY);
+		btnClear = new wxButton(this, wxID_ANY, "clear");
+		btnSave = new wxButton(this, wxID_ANY, "save");
 
-	lbTitle->SetFont(TITLE_FONT);
+		wxBoxSizer* sizer = new wxBoxSizer(wxVERTICAL);
+		wxBoxSizer* radioSizer = new wxBoxSizer(wxHORIZONTAL);
+		wxFlexGridSizer* gridSizer = new wxFlexGridSizer(2, WIN_SPACE_BETWEEN, WIN_SPACE_BETWEEN);
+		wxBoxSizer* productSizer = new wxBoxSizer(wxHORIZONTAL);
+		wxBoxSizer* datetimeSizer = new wxBoxSizer(wxHORIZONTAL);
+		wxBoxSizer* btnSizer = new wxBoxSizer(wxHORIZONTAL);
 
-	// Panel Sizer
-	sizer->Add(lbTitle);
-	sizer->AddSpacer(WIN_SPACE_BETWEEN);
-	sizer->Add(new wxStaticLine(this), 0, wxEXPAND);
-	sizer->AddSpacer(WIN_SPACE_BETWEEN);
-	sizer->Add(radioSizer);
-	sizer->AddSpacer(WIN_SPACE_BETWEEN);
-	sizer->Add(cbCurrentDateTime, 0, wxEXPAND);
-	sizer->AddSpacer(WIN_SPACE_BETWEEN);
-	sizer->Add(gridSizer, 1, wxEXPAND);
-	sizer->AddStretchSpacer();
-	sizer->Add(btnSizer, 0, wxEXPAND);
+		lbTitle->SetFont(TITLE_FONT);
 
-	// Radio Sizer
-	radioSizer->Add(rbIn, 0, wxRIGHT, WIN_SPACE_BETWEEN);
-	radioSizer->Add(rbOut);
+		// Panel Sizer
+		sizer->Add(lbTitle);
+		sizer->AddSpacer(WIN_SPACE_BETWEEN);
+		sizer->Add(new wxStaticLine(this), 0, wxEXPAND);
+		sizer->AddSpacer(WIN_SPACE_BETWEEN);
+		sizer->Add(radioSizer);
+		sizer->AddSpacer(WIN_SPACE_BETWEEN);
+		sizer->Add(cbCurrentDateTime, 0, wxEXPAND);
+		sizer->AddSpacer(WIN_SPACE_BETWEEN);
+		sizer->Add(gridSizer, 1, wxEXPAND);
+		sizer->AddStretchSpacer();
+		sizer->Add(btnSizer, 0, wxEXPAND);
 
-	// Grid Sizer
-	gridSizer->AddGrowableCol(1, 1);
+		// Radio Sizer
+		radioSizer->Add(rbIn, 0, wxRIGHT, WIN_SPACE_BETWEEN);
+		radioSizer->Add(rbOut);
 
-	gridSizer->Add(new wxStaticText(this, wxID_ANY, "Product"), 0, wxALIGN_CENTER_VERTICAL);
-	gridSizer->Add(productSizer, 0, wxEXPAND);
-	gridSizer->Add(new wxStaticText(this, wxID_ANY, "Quantity"), 0, wxALIGN_CENTER_VERTICAL);
-	gridSizer->Add(scQuantity, 0, wxEXPAND);
-	gridSizer->Add(new wxStaticText(this, wxID_ANY, "Unit Value"), 0, wxALIGN_CENTER_VERTICAL);
-	gridSizer->Add(scPrice, 0, wxEXPAND);
-	gridSizer->Add(new wxStaticText(this, wxID_ANY, "Total Value"), 0, wxALIGN_CENTER_VERTICAL);
-	gridSizer->Add(scPriceTotal, 0, wxEXPAND);
-	gridSizer->Add(new wxStaticText(this, wxID_ANY, "Date and Time"), 0, wxALIGN_CENTER_VERTICAL);
-	gridSizer->Add(datetimeSizer, 0, wxEXPAND);
+		// Grid Sizer
+		gridSizer->AddGrowableCol(1, 1);
 
-	// Products Sizer
-	productSizer->Add(cbProduct, 1);
-	productSizer->Add(btnEdit, 0, wxLEFT | wxRIGHT, WIN_SPACE_BETWEEN);
-	productSizer->Add(btnAdd);
+		gridSizer->Add(new wxStaticText(this, wxID_ANY, "Product"), 0, wxALIGN_CENTER_VERTICAL);
+		gridSizer->Add(productSizer, 0, wxEXPAND);
+		gridSizer->Add(new wxStaticText(this, wxID_ANY, "Quantity"), 0, wxALIGN_CENTER_VERTICAL);
+		gridSizer->Add(scQuantity, 0, wxEXPAND);
+		gridSizer->Add(new wxStaticText(this, wxID_ANY, "Unit Value"), 0, wxALIGN_CENTER_VERTICAL);
+		gridSizer->Add(scPrice, 0, wxEXPAND);
+		gridSizer->Add(new wxStaticText(this, wxID_ANY, "Total Value"), 0, wxALIGN_CENTER_VERTICAL);
+		gridSizer->Add(scPriceTotal, 0, wxEXPAND);
+		gridSizer->Add(new wxStaticText(this, wxID_ANY, "Date and Time"), 0, wxALIGN_CENTER_VERTICAL);
+		gridSizer->Add(datetimeSizer, 0, wxEXPAND);
 
-	// DateTime Sizer
-	datetimeSizer->Add(dpDate, 0, wxRIGHT, WIN_SPACE_BETWEEN);
-	datetimeSizer->Add(tpTime);
+		// Products Sizer
+		productSizer->Add(cbProduct, 1);
+		productSizer->Add(btnEdit, 0, wxLEFT | wxRIGHT, WIN_SPACE_BETWEEN);
+		productSizer->Add(btnAdd);
 
-	// Button Sizer
-	btnSizer->AddStretchSpacer();
-	btnSizer->Add(btnClear, 0, wxRIGHT, WIN_SPACE_BETWEEN);
-	btnSizer->Add(btnSave);
+		// DateTime Sizer
+		datetimeSizer->Add(dpDate, 0, wxRIGHT, WIN_SPACE_BETWEEN);
+		datetimeSizer->Add(tpTime);
 
-	SetSizer(sizer);
+		// Button Sizer
+		btnSizer->AddStretchSpacer();
+		btnSizer->Add(btnClear, 0, wxRIGHT, WIN_SPACE_BETWEEN);
+		btnSizer->Add(btnSave);
 
-	// Event bindings
-	btnClear->Bind(wxEVT_BUTTON, [&](wxCommandEvent&) { Clear(); });
-	btnSave->Bind(wxEVT_BUTTON, &RegistryView::OnSave, this);
-	btnEdit->Bind(wxEVT_BUTTON, &RegistryView::OnEdit, this);
-	btnAdd->Bind(wxEVT_BUTTON, &RegistryView::OnAdd, this);
-	cbCurrentDateTime->Bind(wxEVT_CHECKBOX, &RegistryView::OnCurrentDateTimeChecked, this);
-	cbProduct->Bind(wxEVT_COMBOBOX, &RegistryView::OnComboProduct, this);
+		SetSizer(sizer);
 
-	Clear();
-}
+		// Event bindings
+		btnClear->Bind(wxEVT_BUTTON, [&](wxCommandEvent&) { Clear(); });
+		btnSave->Bind(wxEVT_BUTTON, [&](wxCommandEvent&) { dispatchEvent(EVT_REGVIEW_SAVE, this); });
+		btnEdit->Bind(wxEVT_BUTTON, [&](wxCommandEvent&) { dispatchEvent(EVT_REGVIEW_EDIT, this); });
+		btnAdd->Bind(wxEVT_BUTTON, [&](wxCommandEvent&) { dispatchEvent(EVT_REGVIEW_ADD, this); });
+		cbCurrentDateTime->Bind(wxEVT_CHECKBOX, &RegistryView::OnCurrentDateTimeChecked, this);
+		cbProduct->Bind(wxEVT_COMBOBOX, &RegistryView::OnComboProduct, this);
 
-void RegistryView::Clear()
-{
-	UpdateProducts();
+		Clear();
+	}
 
-	rbIn->SetValue(false);
-	rbOut->SetValue(true);
-	cbCurrentDateTime->SetValue(true);
-	scQuantity->SetValue(1);
-	scPrice->SetValue(0.0);
-	scPriceTotal->SetValue(0.0);
-	dpDate->Enable(false);
-	tpTime->Enable(false);
-}
+	void RegistryView::Clear()
+	{
+		rbIn->SetValue(false);
+		rbOut->SetValue(true);
+		cbCurrentDateTime->SetValue(true);
+		scQuantity->SetValue(1);
+		scPrice->SetValue(0.0);
+		scPriceTotal->SetValue(0.0);
+		dpDate->Enable(false);
+		tpTime->Enable(false);
 
-void RegistryView::GetValue(Registry& reg)
-{
-	wxString
-		dt = cbCurrentDateTime->GetValue()
+		UpdateProducts();
+	}
+
+	void RegistryView::SetProduct(const Product& product)
+	{
+		scPrice->SetValue(product.price);
+		scPriceTotal->SetValue(product.price * scQuantity->GetValue());
+	}
+
+	void RegistryView::SetProductById(int id)
+	{
+		SetProduct(model.GetProductById(id));
+	}
+
+	void RegistryView::GetValue(Registry& reg)
+	{
+		wxString
+			dt = cbCurrentDateTime->GetValue()
 			? wxDateTime::Now().Format("%Y-%m-%d %H:%M:%S")
 			: dpDate->GetValue().Format("%Y-%m-%d ") + tpTime->GetValue().Format("%H:%M:%S");
-	
-	reg.id = -1;
-	reg.productId = -1;
-	reg.type = rbIn->GetValue()? RegistryType::In : RegistryType::Out;
-	reg.quantity = (unsigned int)scQuantity->GetValue();
-	reg.price = scPrice->GetValue();
-	reg.total = scPriceTotal->GetValue();
-	reg.datetime = dt;
-}
 
-void RegistryView::UpdateProducts()
-{
-	cbProduct->Clear();
-	for (const auto& product : model.GetProducts()) {
-		cbProduct->Append(product.name, new wxStringClientData(std::to_string(product.id)));
+		reg.id = -1;
+		reg.productId = GetProductIdSelected();
+		reg.type = rbIn->GetValue() ? RegistryType::In : RegistryType::Out;
+		reg.quantity = (unsigned int)scQuantity->GetValue();
+		reg.price = scPrice->GetValue();
+		reg.total = scPriceTotal->GetValue();
+		reg.datetime = dt;
 	}
 
-	cbProduct->SetSelection(0);
-}
+	void RegistryView::UpdateProducts()
+	{
+		cbProduct->Clear();
+		const std::vector<Product>& products = model.GetProducts();
 
-void RegistryView::OnSave(wxCommandEvent& event)
-{
-	wxCommandEvent evt(EVT_REGVIEW_SAVE, GetId());
-	evt.SetEventObject(this);
-	ProcessWindowEvent(evt);
-}
+		if (!products.size())
+			return;
 
-void RegistryView::OnEdit(wxCommandEvent& event)
-{
-	wxCommandEvent evt(EVT_REGVIEW_EDIT, GetId());
-	evt.SetEventObject(this);
-	ProcessWindowEvent(evt);
-}
+		for (const auto& product : products) {
+			cbProduct->Append(product.name, new wxStringClientData(std::to_string(product.id)));
+		}
 
-void RegistryView::OnAdd(wxCommandEvent& event)
-{
-	wxCommandEvent evt(EVT_REGVIEW_ADD, GetId());
-	evt.SetEventObject(this);
-	ProcessWindowEvent(evt);
-}
-
-void RegistryView::OnCurrentDateTimeChecked(wxCommandEvent& event)
-{
-	bool checked = event.IsChecked();
-
-	if (!checked) {
-		wxDateTime dt = wxDateTime::Now();
-		dpDate->SetValue(dt);
-		tpTime->SetValue(dt);
+		cbProduct->SetSelection(0);
+		SetProduct(products[0]);
 	}
 
-	dpDate->Enable(!checked);
-	tpTime->Enable(!checked);
-}
+	void RegistryView::OnCurrentDateTimeChecked(wxCommandEvent& event)
+	{
+		bool checked = event.IsChecked();
 
-void RegistryView::OnComboProduct(wxCommandEvent& event)
-{
-	int selection = cbProduct->GetSelection();
-	if (selection == wxNOT_FOUND) return;
+		if (!checked) {
+			wxDateTime dt = wxDateTime::Now();
+			dpDate->SetValue(dt);
+			tpTime->SetValue(dt);
+		}
 
-	wxStringClientData* client = (wxStringClientData*) cbProduct->GetClientObject(selection);
-	if (client == NULL) return;
+		dpDate->Enable(!checked);
+		tpTime->Enable(!checked);
+	}
 
-	int productId = std::stoi(client->GetData().ToStdString());
-	const Product& product = model.GetProductById(productId);
+	void RegistryView::OnComboProduct(wxCommandEvent& event)
+	{
+		int productId = GetProductIdSelected();
+		if (productId == NO_ID) return;
+		SetProduct(model.GetProductById(productId));
+	}
 
-	scPrice->SetValue(product.price);
-	scPriceTotal->SetValue(product.price * scQuantity->GetValue());
+	int RegistryView::GetProductIdSelected()
+	{
+		int selection = cbProduct->GetSelection();
+		if (selection == wxNOT_FOUND) return NO_ID;
+
+		wxStringClientData* client = (wxStringClientData*)cbProduct->GetClientObject(selection);
+		if (client == NULL) return NO_ID;
+
+		return std::stoi(client->GetData().ToStdString());
+	}
+
 }

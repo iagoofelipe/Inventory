@@ -1,8 +1,11 @@
 #include "InventoryApp.h"
 
-bool InventoryApp::OnInit()
+namespace inventory
 {
-    controller.Initialize();
+    bool InventoryApp::OnInit()
+    {
+        controller.Initialize();
 
-    return true;
+        return true;
+    }
 }

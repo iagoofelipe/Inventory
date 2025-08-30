@@ -81,6 +81,9 @@
     <ClCompile Include="MainController.cpp">
       <Filter>Controllers\Source</Filter>
     </ClCompile>
+    <ClCompile Include="tools.cpp">
+      <Filter>src\Source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DashView.h">
@@ -124,6 +127,9 @@
     </ClInclude>
     <ClInclude Include="MainController.h">
       <Filter>Controllers\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="tools.h">
+      <Filter>src\Header</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

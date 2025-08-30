@@ -3,19 +3,22 @@
 #include <wx/wx.h>
 #include <wx/grid.h>
 
-class DashView : public wxPanel
+namespace inventory
 {
-public:
-	DashView(wxWindow* parent, wxWindowID id = wxID_ANY);
+	class DashView : public wxPanel
+	{
+	public:
+		DashView(wxWindow* parent, wxWindowID id = wxID_ANY);
 
-private:
-	wxComboBox* cbMonth;
-	wxComboBox* cbYear;
-	wxStaticText* lbStock;
-	wxStaticText* lbProducts;
-	wxStaticText* lbValue;
-	wxGrid* gridProducts;
-	wxStaticText* lbGridInfo;
-	wxButton* btnPrevious;
-	wxButton* btnNext;
-};
+	private:
+		wxComboBox* cbMonth;
+		wxComboBox* cbYear;
+		wxStaticText* lbStock;
+		wxStaticText* lbProducts;
+		wxStaticText* lbValue;
+		wxGrid* gridProducts;
+		wxStaticText* lbGridInfo;
+		wxButton* btnPrevious;
+		wxButton* btnNext;
+	};
+}

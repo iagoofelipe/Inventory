@@ -1,3 +1,3 @@
 #include "InventoryApp.h"
 
-wxIMPLEMENT_APP(InventoryApp);
+wxIMPLEMENT_APP(inventory::InventoryApp);
