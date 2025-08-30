@@ -1,14 +1,14 @@
-#include "MovementRegistryView.h"
-#include "AppModel.h"
+#include "RegistryView.h"
 
 #include <wx/statline.h>
 
-wxDEFINE_EVENT(EVT_MOVREG_SAVE_REQUIRED, wxCommandEvent);
-wxDEFINE_EVENT(EVT_MOVREG_EDIT_REQUIRED, wxCommandEvent);
-wxDEFINE_EVENT(EVT_MOVREG_ADD_REQUIRED, wxCommandEvent);
+wxDEFINE_EVENT(EVT_REGVIEW_SAVE, wxCommandEvent);
+wxDEFINE_EVENT(EVT_REGVIEW_EDIT, wxCommandEvent);
+wxDEFINE_EVENT(EVT_REGVIEW_ADD, wxCommandEvent);
 
-MovementRegistryView::MovementRegistryView(wxWindow* parent, wxWindowID id)
+RegistryView::RegistryView(wxWindow* parent, wxWindowID id)
 	: wxPanel(parent, id)
+	, model(AppModel::getInstance())
 {
 	wxStaticText* lbTitle = new wxStaticText(this, wxID_ANY, "Movement Regitry");
 	rbIn = new wxRadioButton(this, wxID_ANY, "In");
@@ -17,7 +17,7 @@ MovementRegistryView::MovementRegistryView(wxWindow* parent, wxWindowID id)
 	cbProduct = new wxComboBox(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0, nullptr, wxCB_READONLY);
 	btnAdd = new wxButton(this, wxID_ANY, "add");
 	btnEdit = new wxButton(this, wxID_ANY, "edit");
-	scQuantity = new wxSpinCtrl(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxSP_ARROW_KEYS, 0, MAX_PRODUCT_QUANTITY);
+	scQuantity = new wxSpinCtrl(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxSP_ARROW_KEYS, 1, MAX_PRODUCT_QUANTITY);
 	scPrice = new wxSpinCtrlDouble(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxSP_ARROW_KEYS, 0.0, MAX_UNIT_VALUE, 0.0, 0.01);
 	scPriceTotal = new wxSpinCtrlDouble(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxSP_ARROW_KEYS, 0.0, MAX_TOTAL_VALUE, 0.0, 0.01);
 	dpDate = new wxDatePickerCtrl(this, wxID_ANY);
@@ -83,61 +83,77 @@ MovementRegistryView::MovementRegistryView(wxWindow* parent, wxWindowID id)
 
 	// Event bindings
 	btnClear->Bind(wxEVT_BUTTON, [&](wxCommandEvent&) { Clear(); });
-	btnSave->Bind(wxEVT_BUTTON, &MovementRegistryView::OnSave, this);
-	btnEdit->Bind(wxEVT_BUTTON, &MovementRegistryView::OnEdit, this);
-	btnAdd->Bind(wxEVT_BUTTON, &MovementRegistryView::OnAdd, this);
-	cbCurrentDateTime->Bind(wxEVT_CHECKBOX, &MovementRegistryView::OnCurrentDateTimeChecked, this);
+	btnSave->Bind(wxEVT_BUTTON, &RegistryView::OnSave, this);
+	btnEdit->Bind(wxEVT_BUTTON, &RegistryView::OnEdit, this);
+	btnAdd->Bind(wxEVT_BUTTON, &RegistryView::OnAdd, this);
+	cbCurrentDateTime->Bind(wxEVT_CHECKBOX, &RegistryView::OnCurrentDateTimeChecked, this);
+	cbProduct->Bind(wxEVT_COMBOBOX, &RegistryView::OnComboProduct, this);
 
 	Clear();
 }
 
-void MovementRegistryView::Clear()
+void RegistryView::Clear()
 {
+	UpdateProducts();
+
 	rbIn->SetValue(false);
 	rbOut->SetValue(true);
 	cbCurrentDateTime->SetValue(true);
-	cbProduct->SetSelection(wxNOT_FOUND);
-	scQuantity->SetValue(0);
+	scQuantity->SetValue(1);
 	scPrice->SetValue(0.0);
 	scPriceTotal->SetValue(0.0);
 	dpDate->Enable(false);
 	tpTime->Enable(false);
 }
 
-void MovementRegistryView::OnSave(wxCommandEvent& event)
+void RegistryView::GetValue(Registry& reg)
 {
-	wxCommandEvent evt(EVT_MOVREG_SAVE_REQUIRED, GetId());
-	Movement* data = new Movement {
-		.productId = -1,
-		.isIn = rbIn->GetValue(),
-		.quantity = (unsigned int) scQuantity->GetValue(),
-		.unitValue = scPrice->GetValue(),
-		.totalValue = scPriceTotal->GetValue()
-	};
+	wxString
+		dt = cbCurrentDateTime->GetValue()
+			? wxDateTime::Now().Format("%Y-%m-%d %H:%M:%S")
+			: dpDate->GetValue().Format("%Y-%m-%d ") + tpTime->GetValue().Format("%H:%M:%S");
+	
+	reg.id = -1;
+	reg.productId = -1;
+	reg.type = rbIn->GetValue()? RegistryType::In : RegistryType::Out;
+	reg.quantity = (unsigned int)scQuantity->GetValue();
+	reg.price = scPrice->GetValue();
+	reg.total = scPriceTotal->GetValue();
+	reg.datetime = dt;
+}
 
-	pAppModel->DeleteLater(data);
+void RegistryView::UpdateProducts()
+{
+	cbProduct->Clear();
+	for (const auto& product : model.GetProducts()) {
+		cbProduct->Append(product.name, new wxStringClientData(std::to_string(product.id)));
+	}
 
+	cbProduct->SetSelection(0);
+}
+
+void RegistryView::OnSave(wxCommandEvent& event)
+{
+	wxCommandEvent evt(EVT_REGVIEW_SAVE, GetId());
 	evt.SetEventObject(this);
-	evt.SetClientData(data);
-
 	ProcessWindowEvent(evt);
 }
 
-void MovementRegistryView::OnEdit(wxCommandEvent& event)
+void RegistryView::OnEdit(wxCommandEvent& event)
 {
-	wxCommandEvent evt(EVT_MOVREG_EDIT_REQUIRED, GetId());
+	wxCommandEvent evt(EVT_REGVIEW_EDIT, GetId());
 	evt.SetEventObject(this);
 	ProcessWindowEvent(evt);
 }
 
-void MovementRegistryView::OnAdd(wxCommandEvent& event)
+void RegistryView::OnAdd(wxCommandEvent& event)
 {
-	wxCommandEvent evt(EVT_MOVREG_ADD_REQUIRED, GetId());
+	wxCommandEvent evt(EVT_REGVIEW_ADD, GetId());
 	evt.SetEventObject(this);
 	ProcessWindowEvent(evt);
 }
 
-void MovementRegistryView::OnCurrentDateTimeChecked(wxCommandEvent& event)
+void RegistryView::OnCurrentDateTimeChecked(wxCommandEvent& event)
 {
 	bool checked = event.IsChecked();
 
@@ -149,4 +165,19 @@ void MovementRegistryView::OnCurrentDateTimeChecked(wxCommandEvent& event)
 
 	dpDate->Enable(!checked);
 	tpTime->Enable(!checked);
+}
+
+void RegistryView::OnComboProduct(wxCommandEvent& event)
+{
+	int selection = cbProduct->GetSelection();
+	if (selection == wxNOT_FOUND) return;
+
+	wxStringClientData* client = (wxStringClientData*) cbProduct->GetClientObject(selection);
+	if (client == NULL) return;
+
+	int productId = std::stoi(client->GetData().ToStdString());
+	const Product& product = model.GetProductById(productId);
+
+	scPrice->SetValue(product.price);
+	scPriceTotal->SetValue(product.price * scQuantity->GetValue());
 }

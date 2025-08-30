@@ -1,6 +1,5 @@
 #pragma once
 
-#include "MainWindow.h"
 #include "AppController.h"
 
 #include <wx/wx.h>

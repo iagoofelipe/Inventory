@@ -1,17 +1,17 @@
 #pragma once
 
-#include "MovementRegistryView.h"
+#include "RegistryView.h"
 #include "ProductView.h"
 #include "DashView.h"
 
 #include <wx/wx.h>
 
-wxDECLARE_EVENT(EVT_VIEW_MOVREG_UPDATED, wxCommandEvent);
+wxDECLARE_EVENT(EVT_MAINVIEW_CONTENT_CHANGED, wxCommandEvent);
 
-class MainWindow : public wxFrame
+class MainView : public wxPanel
 {
 public:
-	MainWindow(const wxString& title);
+	MainView(wxWindow* parent, wxWindowID id = -1);
 
 	enum Content
 	{
@@ -23,13 +23,15 @@ public:
 	};
 
 	void SetContent(Content option);
-	MovementRegistryView* GetMovementRegistryView();
+	RegistryView* GetRegistryView();
 	ProductView* GetProductView();
 	DashView* GetDashView();
 
 private:
+	Content currentContent;
+
 	// views
-	MovementRegistryView* movementRegistryView;
+	RegistryView* registryView;
 	ProductView* productView;
 	DashView* dashView;
 
@@ -40,11 +42,5 @@ private:
 	wxButton* btnRegistry;
 	wxButton* btnEditProduct;
 	wxButton* btnNewProduct;
-
-	// controls
-	Content currentContent;
-
-	//void on_movement_saveRequired(wxCommandEvent& event);
-	void OnClose(wxCloseEvent& event);
 };
 

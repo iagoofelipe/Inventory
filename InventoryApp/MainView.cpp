@@ -1,23 +1,16 @@
-#include "MainWindow.h"
-#include "AppModel.h"
+#include "MainView.h"
 
-#include <wx/spinctrl.h>
-#include <wx/statline.h>
+wxDEFINE_EVENT(EVT_MAINVIEW_CONTENT_CHANGED, wxCommandEvent);
 
-wxDEFINE_EVENT(EVT_VIEW_MOVREG_UPDATED, wxCommandEvent);
-
-MainWindow::MainWindow(const wxString& title)
-	: wxFrame(nullptr, wxID_ANY, title, wxDefaultPosition, wxSize(800, 600))
-	, movementRegistryView(nullptr)
+MainView::MainView(wxWindow* parent, wxWindowID id)
+	: wxPanel(parent, id)
+	, currentContent(__NONE)
+	, registryView(nullptr)
 	, productView(nullptr)
 	, dashView(nullptr)
 	, mainContentPanel(nullptr)
 	, currentButton(nullptr)
-	, currentContent(__NONE)
 {
-	SetFont(wxFont(12, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL));
-	SetBackgroundColour(wxColour());
-
 	wxPanel* navPanel = new wxPanel(this, wxID_ANY);
 	btnHome = new wxButton(navPanel, wxID_ANY, "Home");
 	btnRegistry = new wxButton(navPanel, wxID_ANY, "Registry");
@@ -36,33 +29,29 @@ MainWindow::MainWindow(const wxString& title)
 	navSizer->Add(btnEditProduct, navFlags);
 	navSizer->Add(btnNewProduct, navFlags);
 
-	navPanel->SetSizer(navSizer);
-
 	// Main Sizer
-	sizer->Add(navPanel, 0, wxEXPAND | wxALL, WIN_SPACE_BETWEEN);
-	sizer->Add(mainContentPanel = new wxPanel(this), 1, wxEXPAND | wxRIGHT | wxTOP | wxBOTTOM, WIN_SPACE_BETWEEN);
-
-	// Window properties
-	SetSizer(sizer);
-	SetMinSize(wxSize(800, 600));
-	SetSize(wxSize(800, 600));
-	Center();
-
+	sizer->Add(navPanel, 0, wxEXPAND);
+	sizer->AddSpacer(WIN_SPACE_BETWEEN);
+	sizer->Add(mainContentPanel = new wxPanel(this), 1, wxEXPAND);
+	
 	// Event bindings
-	Bind(wxEVT_CLOSE_WINDOW, &MainWindow::OnClose, this);
 	btnHome->Bind(wxEVT_BUTTON, [&](wxCommandEvent&) { SetContent(HOME); });
 	btnRegistry->Bind(wxEVT_BUTTON, [&](wxCommandEvent&) { SetContent(REGISTRY); });
 	btnEditProduct->Bind(wxEVT_BUTTON, [&](wxCommandEvent&) { SetContent(EDIT_PRODUCT); });
 	btnNewProduct->Bind(wxEVT_BUTTON, [&](wxCommandEvent&) { SetContent(NEW_PRODUCT); });
+
+	// Setting sizers
+	navPanel->SetSizer(navSizer);
+	SetSizer(sizer);
 }
 
-void MainWindow::SetContent(Content option)
+void MainView::SetContent(Content option)
 {
 	if (currentButton)
 		currentButton->Enable();
 
 	// checking if we need to recreate the content
-	bool productWasSet = productView != nullptr 
+	bool productWasSet = productView != nullptr
 		&& (currentContent == EDIT_PRODUCT || currentContent == NEW_PRODUCT),
 		productOption = option == EDIT_PRODUCT || option == NEW_PRODUCT;
 
@@ -81,7 +70,7 @@ void MainWindow::SetContent(Content option)
 
 		case REGISTRY:
 			currentButton = btnRegistry;
-			sizer->Add(movementRegistryView = new MovementRegistryView(mainContentPanel), flags);
+			sizer->Add(registryView = new RegistryView(mainContentPanel), flags);
 			break;
 
 		case EDIT_PRODUCT:
@@ -103,31 +92,21 @@ void MainWindow::SetContent(Content option)
 		bool editMode = option == EDIT_PRODUCT;
 		ProductView::Mode pvMode = editMode ? ProductView::MODE_EDIT : ProductView::MODE_ADD;
 		currentButton = editMode ? btnEditProduct : btnNewProduct;
-		
+
 		productView->SetMode(pvMode);
 	}
 
-	currentContent = option;
 	currentButton->Disable();
+	currentContent = option;
 
-	// processing events
-	if(option == REGISTRY)
-	{
-		wxCommandEvent evt(EVT_VIEW_MOVREG_UPDATED, GetId());
-		evt.SetClientData(movementRegistryView);
-		evt.SetEventObject(this);
-		ProcessWindowEvent(evt);
-	}
+	wxCommandEvent evt(EVT_MAINVIEW_CONTENT_CHANGED, GetId());
+	evt.SetEventObject(this);
+	evt.SetInt(option);
+	ProcessWindowEvent(evt);
 }
 
-MovementRegistryView* MainWindow::GetMovementRegistryView() { return movementRegistryView; }
+RegistryView* MainView::GetRegistryView() { return registryView; }
 
-ProductView* MainWindow::GetProductView() { return productView; }
+ProductView* MainView::GetProductView() { return productView; }
 
-DashView* MainWindow::GetDashView() { return dashView; }
-
-void MainWindow::OnClose(wxCloseEvent&)
-{
-	delete pAppModel;
-	Destroy();
-}
+DashView* MainView::GetDashView() { return dashView; }

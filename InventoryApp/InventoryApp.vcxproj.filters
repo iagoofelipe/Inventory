@@ -1,14 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="Source Files">
-      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
-      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
-    </Filter>
-    <Filter Include="Header Files">
-      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
-      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
-    </Filter>
     <Filter Include="Views">
       <UniqueIdentifier>{c7716adb-82c2-44e6-9973-efa15122b66f}</UniqueIdentifier>
     </Filter>
@@ -18,57 +10,120 @@
     <Filter Include="Controllers">
       <UniqueIdentifier>{03ff4cb5-91d6-4223-926a-b3f0b7ba4cb4}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Views\Source">
+      <UniqueIdentifier>{9d4b31e6-d7bf-4aa6-9a93-cd7a6a60744a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Views\Header">
+      <UniqueIdentifier>{49a5e394-341a-410f-9efe-387c03c60778}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Controllers\Header">
+      <UniqueIdentifier>{7970c0ac-b3ad-448f-b1a5-6757d331e748}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Controllers\Source">
+      <UniqueIdentifier>{d6bc3f8a-7d0d-4be7-a84e-42c7fa4b6d62}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Models\Header">
+      <UniqueIdentifier>{cfc84dc0-b750-4039-8d61-1402ca450758}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Models\Source">
+      <UniqueIdentifier>{45097d1b-4240-4a7c-9fcf-923314dee7c1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src">
+      <UniqueIdentifier>{ce0afb11-a3d6-4bd6-a063-9076b739277b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Header">
+      <UniqueIdentifier>{c252cacd-ee5f-47e3-9064-29d8fe0faab8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Source">
+      <UniqueIdentifier>{76dd5a09-3991-4210-a9ea-7de4630361e6}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="main.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="DashView.cpp">
+      <Filter>Views\Source</Filter>
     </ClCompile>
-    <ClCompile Include="InventoryApp.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="MovementRegistryView.cpp">
-      <Filter>Views</Filter>
-    </ClCompile>
-    <ClCompile Include="AppModel.cpp">
-      <Filter>Models</Filter>
-    </ClCompile>
-    <ClCompile Include="AppController.cpp">
-      <Filter>Controllers</Filter>
-    </ClCompile>
-    <ClCompile Include="MainWindow.cpp">
-      <Filter>Views</Filter>
+    <ClCompile Include="RegistryView.cpp">
+      <Filter>Views\Source</Filter>
     </ClCompile>
     <ClCompile Include="ProductView.cpp">
-      <Filter>Views</Filter>
+      <Filter>Views\Source</Filter>
     </ClCompile>
-    <ClCompile Include="DashView.cpp">
-      <Filter>Views</Filter>
+    <ClCompile Include="AppController.cpp">
+      <Filter>Controllers\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="AppModel.cpp">
+      <Filter>Models\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="InventoryApp.cpp">
+      <Filter>src\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp">
+      <Filter>src\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="AppView.cpp">
+      <Filter>Views\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="MainView.cpp">
+      <Filter>Views\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="LoadingView.cpp">
+      <Filter>Views\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="ConfigView.cpp">
+      <Filter>Views\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="config.cpp">
+      <Filter>src\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Database.cpp">
+      <Filter>Models\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="MainController.cpp">
+      <Filter>Controllers\Source</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="InventoryApp.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="DashView.h">
+      <Filter>Views\Header</Filter>
     </ClInclude>
-    <ClInclude Include="consts.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="MovementRegistryView.h">
-      <Filter>Views</Filter>
-    </ClInclude>
-    <ClInclude Include="AppModel.h">
-      <Filter>Models</Filter>
-    </ClInclude>
-    <ClInclude Include="AppController.h">
-      <Filter>Controllers</Filter>
-    </ClInclude>
-    <ClInclude Include="MainWindow.h">
-      <Filter>Views</Filter>
+    <ClInclude Include="RegistryView.h">
+      <Filter>Views\Header</Filter>
     </ClInclude>
     <ClInclude Include="ProductView.h">
-      <Filter>Views</Filter>
+      <Filter>Views\Header</Filter>
     </ClInclude>
-    <ClInclude Include="DashView.h">
-      <Filter>Views</Filter>
+    <ClInclude Include="AppController.h">
+      <Filter>Controllers\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="AppModel.h">
+      <Filter>Models\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="consts.h">
+      <Filter>src\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="InventoryApp.h">
+      <Filter>src\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="AppView.h">
+      <Filter>Views\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="MainView.h">
+      <Filter>Views\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="LoadingView.h">
+      <Filter>Views\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="ConfigView.h">
+      <Filter>Views\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="config.h">
+      <Filter>src\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="Database.h">
+      <Filter>Models\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="MainController.h">
+      <Filter>Controllers\Header</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

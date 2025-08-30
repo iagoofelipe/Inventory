@@ -77,12 +77,13 @@
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>$(WXWIN)/include/msvc;$(WXWIN)/include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(WXWIN)/include/msvc;$(WXWIN)/include;$(MYSQLCONN)/include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(WXWIN)/lib/vc_x64_lib</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(WXWIN)/lib/vc_x64_lib;$(MYSQLCONN)/lib64/vs14</AdditionalLibraryDirectories>
+      <AdditionalDependencies>mysqlcppconnx.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -94,12 +95,13 @@
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>$(WXWIN)/include/msvc;$(WXWIN)/include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(WXWIN)/include/msvc;$(WXWIN)/include;$(MYSQLCONN)/include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(WXWIN)/lib/vc_x64_lib</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(WXWIN)/lib/vc_x64_lib;$(MYSQLCONN)/lib64/vs14</AdditionalLibraryDirectories>
+      <AdditionalDependencies>mysqlcppconnx.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -109,12 +111,13 @@
       <PreprocessorDefinitions>_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>$(WXWIN)/include/msvc;$(WXWIN)/include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(WXWIN)/include/msvc;$(WXWIN)/include;$(MYSQLCONN)/include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(WXWIN)/lib/vc_x64_lib</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(WXWIN)/lib/vc_x64_lib;$(MYSQLCONN)/lib64/vs14</AdditionalLibraryDirectories>
+      <AdditionalDependencies>mysqlcppconnx.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -126,32 +129,45 @@
       <PreprocessorDefinitions>NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>$(WXWIN)/include/msvc;$(WXWIN)/include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(WXWIN)/include/msvc;$(WXWIN)/include;$(MYSQLCONN)/include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(WXWIN)/lib/vc_x64_lib</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(WXWIN)/lib/vc_x64_lib;$(MYSQLCONN)/lib64/vs14</AdditionalLibraryDirectories>
+      <AdditionalDependencies>mysqlcppconnx.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="AppController.cpp" />
     <ClCompile Include="AppModel.cpp" />
+    <ClCompile Include="AppView.cpp" />
+    <ClCompile Include="config.cpp" />
+    <ClCompile Include="ConfigView.cpp" />
     <ClCompile Include="DashView.cpp" />
+    <ClCompile Include="Database.cpp" />
     <ClCompile Include="InventoryApp.cpp" />
+    <ClCompile Include="LoadingView.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="MainWindow.cpp" />
-    <ClCompile Include="MovementRegistryView.cpp" />
+    <ClCompile Include="MainController.cpp" />
+    <ClCompile Include="MainView.cpp" />
+    <ClCompile Include="RegistryView.cpp" />
     <ClCompile Include="ProductView.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AppController.h" />
     <ClInclude Include="AppModel.h" />
+    <ClInclude Include="AppView.h" />
+    <ClInclude Include="config.h" />
+    <ClInclude Include="ConfigView.h" />
     <ClInclude Include="consts.h" />
     <ClInclude Include="DashView.h" />
+    <ClInclude Include="Database.h" />
     <ClInclude Include="InventoryApp.h" />
-    <ClInclude Include="MainWindow.h" />
-    <ClInclude Include="MovementRegistryView.h" />
+    <ClInclude Include="LoadingView.h" />
+    <ClInclude Include="MainController.h" />
+    <ClInclude Include="MainView.h" />
+    <ClInclude Include="RegistryView.h" />
     <ClInclude Include="ProductView.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
