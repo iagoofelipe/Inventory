@@ -39,7 +39,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="DashView.cpp">
+    <ClCompile Include="HomeView.cpp">
       <Filter>Views\Source</Filter>
     </ClCompile>
     <ClCompile Include="RegistryView.cpp">
@@ -72,9 +72,6 @@
     <ClCompile Include="ConfigView.cpp">
       <Filter>Views\Source</Filter>
     </ClCompile>
-    <ClCompile Include="config.cpp">
-      <Filter>src\Source</Filter>
-    </ClCompile>
     <ClCompile Include="Database.cpp">
       <Filter>Models\Source</Filter>
     </ClCompile>
@@ -84,9 +81,15 @@
     <ClCompile Include="tools.cpp">
       <Filter>src\Source</Filter>
     </ClCompile>
+    <ClCompile Include="HomeModel.cpp">
+      <Filter>Models\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="HomeController.cpp">
+      <Filter>Controllers\Source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="DashView.h">
+    <ClInclude Include="HomeView.h">
       <Filter>Views\Header</Filter>
     </ClInclude>
     <ClInclude Include="RegistryView.h">
@@ -119,9 +122,6 @@
     <ClInclude Include="ConfigView.h">
       <Filter>Views\Header</Filter>
     </ClInclude>
-    <ClInclude Include="config.h">
-      <Filter>src\Header</Filter>
-    </ClInclude>
     <ClInclude Include="Database.h">
       <Filter>Models\Header</Filter>
     </ClInclude>
@@ -130,6 +130,12 @@
     </ClInclude>
     <ClInclude Include="tools.h">
       <Filter>src\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="HomeModel.h">
+      <Filter>Models\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="HomeController.h">
+      <Filter>Controllers\Header</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

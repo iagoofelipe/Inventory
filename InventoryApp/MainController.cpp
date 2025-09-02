@@ -3,7 +3,7 @@
 namespace inventory
 {
 	MainController::MainController()
-		: model(AppModel::getInstance())
+		: model(AppModel::GetInstance())
 		, appView(nullptr)
 		, view(nullptr)
 	{

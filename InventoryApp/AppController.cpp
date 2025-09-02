@@ -6,7 +6,7 @@
 namespace inventory
 {
 	AppController::AppController()
-		: model(AppModel::getInstance())
+		: model(AppModel::GetInstance())
 		, view(nullptr)
 	{
 		model.Bind(EVT_APPMODEL_INITIALIZED, &AppController::on_AppModel_initialized, this);

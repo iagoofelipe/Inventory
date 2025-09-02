@@ -12,7 +12,7 @@ namespace inventory
 
 	RegistryView::RegistryView(wxWindow* parent, wxWindowID id)
 		: wxPanel(parent, id)
-		, model(AppModel::getInstance())
+		, model(AppModel::GetInstance())
 	{
 		wxStaticText* lbTitle = new wxStaticText(this, wxID_ANY, "Movement Regitry");
 		rbIn = new wxRadioButton(this, wxID_ANY, "In");

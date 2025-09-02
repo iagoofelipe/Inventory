@@ -2,7 +2,7 @@
 
 #include "RegistryView.h"
 #include "ProductView.h"
-#include "DashView.h"
+#include "HomeView.h"
 
 #include <wx/wx.h>
 
@@ -27,7 +27,7 @@ namespace inventory
 		void SetContent(Content option);
 		RegistryView* GetRegistryView();
 		ProductView* GetProductView();
-		DashView* GetDashView();
+		HomeView* GetHomeView();
 
 	private:
 		Content currentContent;
@@ -35,7 +35,7 @@ namespace inventory
 		// views
 		RegistryView* registryView;
 		ProductView* productView;
-		DashView* dashView;
+		HomeView* homeView;
 
 		// components
 		wxPanel* mainContentPanel;

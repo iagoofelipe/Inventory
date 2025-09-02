@@ -142,9 +142,10 @@
     <ClCompile Include="AppController.cpp" />
     <ClCompile Include="AppModel.cpp" />
     <ClCompile Include="AppView.cpp" />
-    <ClCompile Include="config.cpp" />
     <ClCompile Include="ConfigView.cpp" />
-    <ClCompile Include="DashView.cpp" />
+    <ClCompile Include="HomeController.cpp" />
+    <ClCompile Include="HomeModel.cpp" />
+    <ClCompile Include="HomeView.cpp" />
     <ClCompile Include="Database.cpp" />
     <ClCompile Include="InventoryApp.cpp" />
     <ClCompile Include="LoadingView.cpp" />
@@ -159,10 +160,11 @@
     <ClInclude Include="AppController.h" />
     <ClInclude Include="AppModel.h" />
     <ClInclude Include="AppView.h" />
-    <ClInclude Include="config.h" />
     <ClInclude Include="ConfigView.h" />
     <ClInclude Include="consts.h" />
-    <ClInclude Include="DashView.h" />
+    <ClInclude Include="HomeController.h" />
+    <ClInclude Include="HomeModel.h" />
+    <ClInclude Include="HomeView.h" />
     <ClInclude Include="Database.h" />
     <ClInclude Include="InventoryApp.h" />
     <ClInclude Include="LoadingView.h" />

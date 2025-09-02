@@ -33,9 +33,7 @@ namespace inventory
 		const Product& GetProductById(int id);
 		void SetDatabaseConnParams(const DatabaseConnParams& params);
 		const DatabaseConnParams& GetDatabaseConnParams();
-
-		static AppModel& getInstance();
-		static void Release();
+		static AppModel& GetInstance();
 
 	private:
 		AppModel();
@@ -44,7 +42,6 @@ namespace inventory
 		void _initialize();
 		void dispatchInitialized(InitializationResult r);
 
-		static bool cleaned;
 		bool dbParamsSet;
 		Database& db;
 		Config& cfg;

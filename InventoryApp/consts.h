@@ -1,20 +1,15 @@
 #pragma once
 
 #include <wx/font.h>
-
-//#define CONFIG_FILE "config.ini"
-//#define DB_DEF_HOST "localhost"
-//#define DB_DEF_USER "root"
-//#define DB_DEF_PASSWORD ""
-//#define DB_DEF_SCHEMA "inventory_stock"
+#include <string>
 
 namespace inventory
 {
 	const int DB_DEF_PORT = 33060;
-	const wxString DB_DEF_HOST = "localhost";
-	const wxString DB_DEF_USER = "root";
-	const wxString DB_DEF_PASSWORD = "";
-	const wxString DB_DEF_SCHEMA = "inventory_stock";
+	const std::string DB_DEF_HOST = "localhost";
+	const std::string DB_DEF_USER = "root";
+	const std::string DB_DEF_PASSWORD = "";
+	const std::string DB_DEF_SCHEMA = "inventory_stock";
 
 	const int WIN_SPACE_BETWEEN = 10;
 

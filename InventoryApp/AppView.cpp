@@ -12,7 +12,7 @@ namespace inventory
 
 	AppView::AppView()
 		: wxFrame(nullptr, wxID_ANY, title, wxDefaultPosition, wxSize(800, 600))
-		, model(AppModel::getInstance())
+		, model(AppModel::GetInstance())
 		, currentContent(__NONE)
 		, mainView(nullptr)
 		, loadingView(nullptr)

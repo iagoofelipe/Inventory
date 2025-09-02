@@ -7,8 +7,8 @@
 #include "consts.h"
 
 #include <string>
+#include <vector>
 #include <mysqlx/xdevapi.h>
-#include <wx/wx.h>
 
 namespace inventory
 {
@@ -42,7 +42,12 @@ namespace inventory
 		Database(const Database&) = delete;
 		Database& operator=(const Database&) = delete;
 
-		static Database& getInstance();
+		static Database& GetInstance();
+		static const std::vector<std::string> TABLE_COLS_REG;
+		static std::string TABLE_COLS_REG_STR;
+		static const std::vector<std::string> TABLE_COLS_PROD;
+		static std::string TABLE_COLS_PROD_STR;
+
 		bool connect(const DatabaseConnParams& params);
 		const std::string& getError();
 
@@ -51,6 +56,7 @@ namespace inventory
 		void getRegistryById(int registryId, Registry& reg);
 		void getRegistries(std::vector<Registry>& regs);
 		void getRegistries(std::vector<Registry>& regs, int limit, int startIndex = 0);
+		void getRegistriesByRange(std::vector<Registry>& regs, const std::string& dtstart, const std::string& dtend);
 		void addRegistry(Registry& reg);
 		void updateRegistry(const Registry& reg);
 		void deleteRegistry(int registryId);
@@ -71,7 +77,19 @@ namespace inventory
 		mysqlx::Session* session;
 		std::string error;
 
-		void generateRegistryFromRow(const mysqlx::Row& row, Registry& reg);
-		void generateProductFromRow(const mysqlx::Row& row, Product& prod);
+
+		void registryFromRow(const mysqlx::Row& row, Registry& reg);
+		void registryFromRow(const std::vector<mysqlx::Row>& rows, std::vector<Registry>& regs);
+		void productFromRow(const mysqlx::Row& row, Product& prod);
+		void productFromRow(const std::vector<mysqlx::Row>& rows, std::vector<Product>& prods);
+		
+		/*
+		Generate the fields to a sql query
+
+		result: ?, ?, ..., ?
+		result with keyValue: val1 = ?, val2 = ?
+
+		*/
+		std::string getPlaceHolderFromTable(const std::vector<std::string>& cols, bool keyValue = false, bool ignoreId = false);
 	};
 }

@@ -9,7 +9,7 @@ namespace inventory
 		, currentContent(__NONE)
 		, registryView(nullptr)
 		, productView(nullptr)
-		, dashView(nullptr)
+		, homeView(nullptr)
 		, mainContentPanel(nullptr)
 		, currentButton(nullptr)
 	{
@@ -67,7 +67,7 @@ namespace inventory
 			{
 			case HOME:
 				currentButton = btnHome;
-				sizer->Add(dashView = new DashView(mainContentPanel), flags);
+				sizer->Add(homeView = new HomeView(mainContentPanel), flags);
 				break;
 
 			case REGISTRY:
@@ -111,5 +111,5 @@ namespace inventory
 
 	ProductView* MainView::GetProductView() { return productView; }
 
-	DashView* MainView::GetDashView() { return dashView; }
+	HomeView* MainView::GetHomeView() { return homeView; }
 }

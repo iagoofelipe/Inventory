@@ -1,11 +1,32 @@
 #include "Database.h"
-#include "config.h"
+#include <sstream>
 
 namespace inventory
 {
-	Database& Database::getInstance()
+	const std::vector<std::string> Database::TABLE_COLS_REG { "id", "product_id", "type", "quantity", "price", "total", "datetime" };
+	std::string Database::TABLE_COLS_REG_STR {};
+	const std::vector<std::string> Database::TABLE_COLS_PROD { "id", "name", "price", "minQuantity", "description" };
+	std::string Database::TABLE_COLS_PROD_STR {};
+
+	Database& Database::GetInstance()
 	{
-		static Database instance; // Instantiated on first use.
+		if (TABLE_COLS_REG_STR.empty() && !TABLE_COLS_REG.empty()) {
+			size_t size = TABLE_COLS_REG.size();
+
+			for (int i = 0; i < size; i++) {
+				TABLE_COLS_REG_STR += (i == 0 ? "" : ", ") + TABLE_COLS_REG[i];
+			}
+		}
+
+		if (TABLE_COLS_PROD_STR.empty() && !TABLE_COLS_PROD.empty()) {
+			size_t size = TABLE_COLS_PROD.size();
+
+			for (int i = 0; i < size; i++) {
+				TABLE_COLS_PROD_STR += (i == 0 ? "" : ", ") + TABLE_COLS_PROD[i];
+			}
+		}
+
+		static Database instance;
 		return instance;
 	}
 
@@ -51,7 +72,11 @@ namespace inventory
 
 	void Database::getRegistryById(int registryId, Registry& reg)
 	{
-		const mysqlx::Row row = session->sql("SELECT id, product_id, type, quantity, price, total, datetime FROM registry WHERE id = ?")
+		std::stringstream query;
+
+		query << "SELECT " << TABLE_COLS_REG_STR << " FROM registry WHERE id = ?";
+
+		const mysqlx::Row row = session->sql(query.str())
 			.bind(registryId)
 			.execute()
 			.fetchOne();
@@ -61,56 +86,60 @@ namespace inventory
 			return;
 		}
 
-		generateRegistryFromRow(row, reg);
+		registryFromRow(row, reg);
 	}
 
 	void Database::getRegistries(std::vector<Registry>& regs)
 	{
-		regs.clear();
+		std::stringstream query;
 
-		std::vector<mysqlx::Row> rows = session->sql("SELECT id, product_id, type, quantity, price, total, datetime FROM registry")
+		query << "SELECT " << TABLE_COLS_REG_STR << " FROM registry ORDER BY datetime DESC";
+
+		std::vector<mysqlx::Row> rows = session->sql(query.str())
 			.execute()
 			.fetchAll();
 
-		for (const auto& row : rows) {
-			regs.emplace_back(
-				row[0].get<int>(),
-				row[1].get<int>(),
-				row[2].get<int>() ? RegistryType::In : RegistryType::Out,
-				row[3].get<int>(),
-				row[4].get<double>(),
-				row[5].get<double>(),
-				row[6].get<std::string>()
-			);
-		}
+		registryFromRow(rows, regs);
 	}
 
 	void Database::getRegistries(std::vector<Registry>& regs, int limit, int startIndex)
 	{
-		regs.clear();
+		std::stringstream query;
+		
+		query << "SELECT " << TABLE_COLS_REG_STR << " FROM registry ORDER BY datetime DESC LIMIT ? OFFSET ?";
 
-		std::vector<mysqlx::Row> rows = session->sql("SELECT id, product_id, type, quantity, price, total, datetime FROM registry LIMIT ? OFFSET ?")
+		std::vector<mysqlx::Row> rows = session->sql(query.str())
 			.bind(limit)
 			.bind(startIndex)
 			.execute()
 			.fetchAll();
 
-		for (const auto& row : rows) {
-			regs.emplace_back(
-				row[0].get<int>(),
-				row[1].get<int>(),
-				row[2].get<int>() ? RegistryType::In : RegistryType::Out,
-				row[3].get<int>(),
-				row[4].get<double>(),
-				row[5].get<double>(),
-				row[6].get<std::string>()
-			);
-		}
+		registryFromRow(rows, regs);
+	}
+
+	void Database::getRegistriesByRange(std::vector<Registry>& regs, const std::string& dtstart, const std::string& dtend)
+	{
+		std::stringstream query;
+
+		query << "SELECT " << TABLE_COLS_REG_STR << " FROM registry WHERE datetime BETWEEN ? AND ? ORDER BY datetime";
+
+		std::vector<mysqlx::Row> rows = session->sql(query.str())
+			.bind(dtstart)
+			.bind(dtend)
+			.execute()
+			.fetchAll();
+
+		registryFromRow(rows, regs);
 	}
 
 	void Database::addRegistry(Registry& reg)
 	{
-		mysqlx::SqlResult result = session->sql("INSERT INTO registry (product_id, type, quantity, price, total, datetime) VALUES (?, ?, ?, ?, ?, ?)")
+		std::stringstream query;
+
+		query << "INSERT INTO registry (" << TABLE_COLS_REG_STR << ") VALUES (" << getPlaceHolderFromTable(TABLE_COLS_REG) << ")";
+
+		mysqlx::SqlResult result = session->sql(query.str())
+			.bind(reg.id)
 			.bind(reg.productId)
 			.bind(reg.type == RegistryType::In ? 1 : 0)
 			.bind(reg.quantity)
@@ -123,7 +152,14 @@ namespace inventory
 
 	void Database::updateRegistry(const Registry& reg)
 	{
-		session->sql("UPDATE registry SET product_id = ?, type = ?, quantity = ?, price = ?, total = ?, datetime = ? WHERE id = ?")
+		std::stringstream query;
+
+		query
+			<< "UPDATE registry SET "
+			<< getPlaceHolderFromTable(TABLE_COLS_REG, true, true)
+			<< " WHERE id = ?";
+
+		session->sql(query.str())
 			.bind(reg.productId)
 			.bind(reg.type == RegistryType::In ? 1 : 0)
 			.bind(reg.quantity)
@@ -152,7 +188,11 @@ namespace inventory
 
 	void Database::getProductById(int productId, Product& prod)
 	{
-		const mysqlx::Row row = session->sql("SELECT id, name, price, minQuantity, description FROM product WHERE id = ?")
+		std::stringstream query;
+
+		query << "SELECT " << TABLE_COLS_PROD_STR << " FROM product WHERE id = ?";
+
+		const mysqlx::Row row = session->sql(query.str())
 			.bind(productId)
 			.execute()
 			.fetchOne();
@@ -162,52 +202,44 @@ namespace inventory
 			return;
 		}
 
-		generateProductFromRow(row, prod);
+		productFromRow(row, prod);
 	}
 
 	void Database::getProducts(std::vector<Product>& products)
 	{
-		products.clear();
+		std::stringstream query;
 
-		std::vector<mysqlx::Row> rows = session->sql("SELECT id, name, price, minQuantity, description FROM product")
+		query << "SELECT " << TABLE_COLS_PROD_STR << " FROM product";
+
+		std::vector<mysqlx::Row> rows = session->sql(query.str())
 			.execute()
 			.fetchAll();
 
-		for (const auto& row : rows) {
-			products.emplace_back(
-				row[0].get<int>(),
-				row[1].get<std::string>(),
-				row[2].get<double>(),
-				row[3].get<int>(),
-				row[4].get<std::string>()
-			);
-		}
+		productFromRow(rows, products);
 	}
 
 	void Database::getProducts(std::vector<Product>& products, int limit, int startIndex)
 	{
-		products.clear();
+		std::stringstream query;
 
-		std::vector<mysqlx::Row> rows = session->sql("SELECT id, name, price, minQuantity, description FROM product LIMIT ? OFFSET ?")
+		query << "SELECT " << TABLE_COLS_PROD_STR << " FROM product LIMIT ? OFFSET ?";
+
+		std::vector<mysqlx::Row> rows = session->sql(query.str())
 			.bind(limit)
 			.bind(startIndex)
 			.execute()
 			.fetchAll();
 
-		for (const auto& row : rows) {
-			products.emplace_back(
-				row[0].get<int>(),
-				row[1].get<std::string>(),
-				row[2].get<double>(),
-				row[3].get<int>(),
-				row[4].get<std::string>()
-			);
-		}
+		productFromRow(rows, products);
 	}
 
 	void Database::addProduct(Product& prod)
 	{
-		mysqlx::SqlResult result = session->sql("INSERT INTO product (name, price, minQuantity, description) VALUES (?, ?, ?, ?)")
+		std::stringstream query;
+
+		query << "INSERT INTO product (" << TABLE_COLS_PROD_STR << ") VALUES (" << getPlaceHolderFromTable(TABLE_COLS_PROD);
+
+		mysqlx::SqlResult result = session->sql(query.str())
 			.bind(prod.name)
 			.bind(prod.price)
 			.bind(prod.minQuantity)
@@ -218,7 +250,11 @@ namespace inventory
 
 	void Database::updateProduct(const Product& prod)
 	{
-		session->sql("UPDATE product SET name = ?, price = ?, minQuantity = ?, description = ? WHERE id = ?")
+		std::stringstream query;
+
+		query << "UPDATE PRODUCT SET " << getPlaceHolderFromTable(TABLE_COLS_PROD, true, true) << " WHERE id = ?";
+
+		session->sql(query.str())
 			.bind(prod.name)
 			.bind(prod.price)
 			.bind(prod.minQuantity)
@@ -247,7 +283,7 @@ namespace inventory
 		delete session;
 	}
 
-	void Database::generateRegistryFromRow(const mysqlx::Row& row, Registry& reg)
+	void Database::registryFromRow(const mysqlx::Row& row, Registry& reg)
 	{
 		reg.id = row[0].get<int>();
 		reg.productId = row[1].get<int>();
@@ -258,12 +294,62 @@ namespace inventory
 		reg.datetime = row[6].get<std::string>();
 	}
 
-	void Database::generateProductFromRow(const mysqlx::Row& row, Product& prod)
+	void Database::registryFromRow(const std::vector<mysqlx::Row>& rows, std::vector<Registry>& regs)
+	{
+		regs.clear();
+
+		for (const auto& row : rows) {
+			regs.emplace_back(
+				row[0].get<int>(),
+				row[1].get<int>(),
+				row[2].get<int>() ? RegistryType::In : RegistryType::Out,
+				row[3].get<int>(),
+				row[4].get<double>(),
+				row[5].get<double>(),
+				row[6].get<std::string>()
+			);
+		}
+	}
+
+	void Database::productFromRow(const mysqlx::Row& row, Product& prod)
 	{
 		prod.id = row[0].get<int>();
 		prod.name = row[1].get<std::string>();
 		prod.price = row[2].get<double>();
 		prod.minQuantity = row[3].get<int>();
 		prod.description = row[4].get<std::string>();
+	}
+	void Database::productFromRow(const std::vector<mysqlx::Row>& rows, std::vector<Product>& prods)
+	{
+		prods.clear();
+
+		for (const auto& row : rows) {
+			prods.emplace_back(
+				row[0].get<int>(),
+				row[1].get<std::string>(),
+				row[2].get<double>(),
+				row[3].get<int>(),
+				row[4].get<std::string>()
+			);
+		}
+	}
+	std::string Database::getPlaceHolderFromTable(const std::vector<std::string>& cols, bool keyValue, bool ignoreId)
+	{
+		std::string out;
+		int index = 0;
+
+		for (const auto& col : cols) {
+			if (ignoreId && col == "id")
+				continue;
+
+			if (index == 0) {
+				out += keyValue ? ("`" + col + "` = ?") : ("?");
+			}
+			else {
+				out += keyValue ? (", `" + col + "` = ?") : ", ?";
+			}
+		}
+
+		return out;
 	}
 }

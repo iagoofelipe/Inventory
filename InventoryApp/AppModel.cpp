@@ -1,5 +1,4 @@
 #include "AppModel.h"
-#include "config.h"
 
 #include <wx/wx.h>
 
@@ -12,9 +11,7 @@ wxDEFINE_EVENT(EVT_APPMODEL_PRODUCTS_UPDATED, wxCommandEvent);
 
 namespace inventory
 {
-	bool AppModel::cleaned = false;
-
-	AppModel& AppModel::getInstance()
+	AppModel& AppModel::GetInstance()
 	{
 		static AppModel instance;
 		return instance;
@@ -77,17 +74,9 @@ namespace inventory
 		return dbParams;
 	}
 
-	void AppModel::Release()
-	{
-		if (cleaned)
-			return;
-
-		cleaned = true;
-	}
-
 	AppModel::AppModel()
 		: wxEvtHandler()
-		, db(Database::getInstance())
+		, db(Database::GetInstance())
 		, cfg(Config::GetInstance())
 		, dbParamsSet(false)
 	{
@@ -95,7 +84,6 @@ namespace inventory
 
 	AppModel::~AppModel()
 	{
-		Release();
 	}
 
 	void AppModel::_initialize()

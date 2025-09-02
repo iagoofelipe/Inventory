@@ -11,7 +11,7 @@ namespace inventory
 	ProductView::ProductView(wxWindow* parent, wxWindowID id, Mode mode)
 		: wxPanel(parent, id)
 		, currentMode(__NONE)
-		, model(AppModel::getInstance())
+		, model(AppModel::GetInstance())
 	{
 		lbTitle = new wxStaticText(this, wxID_ANY, wxEmptyString);
 		lbProduct = new wxStaticText(this, wxID_ANY, "Product");
