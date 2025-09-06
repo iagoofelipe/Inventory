@@ -4,8 +4,6 @@
 #define _CRT_SECURE_NO_WARNINGS
 #endif
 
-#include "consts.h"
-
 #include <string>
 #include <vector>
 #include <mysqlx/xdevapi.h>
@@ -34,6 +32,15 @@ namespace inventory
 		double price;
 		double total;
 		std::string datetime;
+	};
+
+	struct DatabaseConnParams
+	{
+		std::string host;
+		int port = 0;
+		std::string schema;
+		std::string user;
+		std::string password;
 	};
 
 	class Database

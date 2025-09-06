@@ -1,6 +1,7 @@
 #pragma once
 
 #include <wx/font.h>
+#include <wx/datetime.h>
 #include <string>
 
 namespace inventory
@@ -18,14 +19,8 @@ namespace inventory
 	const int MAX_PRODUCT_QUANTITY = 10000;
 	const int MAX_LEN_TAB_PRODUCTS = 20;
 
-	const wxFont TITLE_FONT = wxFont(16, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL);
+	const wxDateTime REG_DATE_MIN = wxDateTime(1, wxDateTime::Jan, 2000);
+	const wxDateTime REG_DATE_MAX = wxDateTime(31, wxDateTime::Dec, wxDateTime::Now().GetYear() + 100);
 
-	struct DatabaseConnParams
-	{
-		std::string host;
-		int port = 0;
-		std::string schema;
-		std::string user;
-		std::string password;
-	};
+	const wxFont TITLE_FONT = wxFont(16, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL);
 }

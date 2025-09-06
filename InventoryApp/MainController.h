@@ -3,6 +3,7 @@
 #include "AppModel.h"
 #include "AppView.h"
 #include "MainView.h"
+#include "HomeController.h"
 
 namespace inventory
 {
@@ -11,13 +12,14 @@ namespace inventory
 	public:
 		MainController();
 
-		void SetAppView(AppView* view);
 		void SetView(MainView* view);
 
 	private:
 		AppModel& model;
-		AppView* appView;
 		MainView* view;
+
+		// children
+		HomeController homeController;
 
 		void on_MainView_contentChanged(wxCommandEvent& evt);
 		void on_RegistryView_saveRequired(wxCommandEvent& evt);

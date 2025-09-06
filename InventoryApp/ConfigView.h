@@ -1,7 +1,7 @@
 #pragma once
 
+#include "Database.h"
 #include <wx/wx.h>
-#include "consts.h"
 
 wxDECLARE_EVENT(EVT_CONFIGVIEW_SAVE, wxCommandEvent);
 

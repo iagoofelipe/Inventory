@@ -14,7 +14,7 @@ namespace inventory
 
 	void AppController::Initialize()
 	{
-		mainController.SetAppView(view = new AppView());
+		view = new AppView();
 
 		// binding events
 		view->Bind(EVT_APPVIEW_CLOSE, &AppController::on_AppView_close, this);

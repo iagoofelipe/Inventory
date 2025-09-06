@@ -1,5 +1,6 @@
 #include "HomeView.h"
 #include "consts.h"
+#include "tools.h"
 
 #include <wx/statline.h>
 
@@ -11,14 +12,18 @@ namespace inventory
 {
 	HomeView::HomeView(wxWindow* parent, wxWindowID id)
 		: wxPanel(parent, id)
+		, appModel(AppModel::GetInstance())
 	{
 		const size_t numCols = 6;
 		const char* cols[numCols] = { "Product", "Type", "Quantity", "Datetime", "Unit Value", "Total" };
+		wxDateTime now = wxDateTime::Now();
+		dtOldStart = wxDateTime(1, now.GetMonth(), now.GetYear());
+		dtOldEnd = wxDateTime(now.GetLastMonthDay().GetDay(), now.GetMonth(), now.GetYear());
 
 		wxStaticText* lbTitle = new wxStaticText(this, wxID_ANY, "Home");
 		wxStaticText* lbTableTitle = new wxStaticText(this, wxID_ANY, "Registries");
-		dtStart = new wxDatePickerCtrl(this, wxID_ANY);
-		dtEnd = new wxDatePickerCtrl(this, wxID_ANY);
+		dtStart = new wxDatePickerCtrl(this, wxID_ANY, dtOldStart, wxDefaultPosition, wxDefaultSize, wxDP_DROPDOWN);
+		dtEnd = new wxDatePickerCtrl(this, wxID_ANY, dtOldEnd, wxDefaultPosition, wxDefaultSize, wxDP_DROPDOWN);
 		gridProducts = new wxGrid(this, wxID_ANY);
 		lbGridInfo = new wxStaticText(this, wxID_ANY, "0 to 0 of 0 item(s)");
 		btnPrevious = new wxButton(this, wxID_ANY, "<");
@@ -38,7 +43,8 @@ namespace inventory
 		gridProducts->EnableEditing(false);
 		btnPrevious->Enable(false);
 		btnNext->Enable(false);
-		//gridProducts->HideRowLabels();
+		dtStart->SetRange(REG_DATE_MIN, dtOldEnd);
+		dtEnd->SetRange(dtOldStart, REG_DATE_MAX);
 
 		for (int i = 0; i < numCols; i++)
 			gridProducts->SetColLabelValue(i, cols[i]);
@@ -69,6 +75,12 @@ namespace inventory
 		navGridSizer->Add(btnNext);
 
 		SetSizer(sizer);
+
+		// binding events
+		btnPrevious->Bind(wxEVT_BUTTON, [&](wxCommandEvent&) { dispatchEvent(EVT_HOMEVIEW_PREV, this); });
+		btnNext->Bind(wxEVT_BUTTON, [&](wxCommandEvent&) { dispatchEvent(EVT_HOMEVIEW_NEXT, this); });
+		dtStart->Bind(wxEVT_DATE_CHANGED, &HomeView::OnDateStart, this);
+		dtEnd->Bind(wxEVT_DATE_CHANGED, &HomeView::OnDateEnd, this);
 	}
 	void HomeView::GetDateRange(wxDateTime& start, wxDateTime& end)
 	{
@@ -76,15 +88,27 @@ namespace inventory
 		end = dtEnd->GetValue();
 	}
 
-	void HomeView::SetRegistries(const std::vector<Registry*>& regs)
+	void HomeView::SetRegistries(const std::vector<Registry*>* regs)
 	{
+		gridProducts->ClearGrid();
 
+		int row = 0;
+		for (const auto& reg : *regs) {
+			gridProducts->SetCellValue(row, 0, appModel.GetProductById(reg->productId).name);
+			gridProducts->SetCellValue(row, 1, reg->type == RegistryType::In ? "In" : "Out");
+			gridProducts->SetCellValue(row, 2, wxString::Format("%d", reg->quantity));
+			gridProducts->SetCellValue(row, 3, reg->datetime);
+			gridProducts->SetCellValue(row, 4, wxString::Format("$ %.2f", reg->price));
+			gridProducts->SetCellValue(row, 5, wxString::Format("$ %.2f", reg->total));
+			row++;
+		}
 	}
 	
 	void HomeView::SetIntervalLabel(const wxString& text)
 	{
 		lbGridInfo->SetLabelText(text);
 	}
+
 	void HomeView::EnablePrevious(bool enable)
 	{
 		btnPrevious->Enable(enable);
@@ -93,5 +117,37 @@ namespace inventory
 	void HomeView::EnableNext(bool enable)
 	{
 		btnNext->Enable(enable);
+	}
+
+	void HomeView::Clear() {}
+
+	void HomeView::OnDateStart(wxDateEvent& evt)
+	{
+		const wxDateTime& dt = evt.GetDate();
+		
+		if (dt > dtOldEnd) {
+			wxMessageBox("The initial date must be minor or equal than the final date", "Validation Error", wxICON_ERROR, this);
+			dtStart->SetValue(dtOldStart);
+			return;
+		}
+
+		dtOldStart = dt;
+		dtEnd->SetRange(dt, REG_DATE_MAX);
+		dispatchEvent(EVT_HOMEVIEW_DATE, this);
+	}
+
+	void HomeView::OnDateEnd(wxDateEvent& evt)
+	{
+		const wxDateTime& dt = evt.GetDate();
+
+		if (dt < dtOldStart) {
+			wxMessageBox("The final date must be major or equal than the initial date", "Validation Error", wxICON_ERROR, this);
+			dtEnd->SetValue(dtOldEnd);
+			return;
+		}
+
+		dtOldEnd = dt;
+		dtStart->SetRange(REG_DATE_MIN, dt);
+		dispatchEvent(EVT_HOMEVIEW_DATE, this);
 	}
 }

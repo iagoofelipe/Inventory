@@ -3,6 +3,14 @@
 
 namespace inventory
 {
+
+	std::string timestampToString(time_t timestamp) {
+		std::tm* tm_ptr = std::localtime(&timestamp);
+		std::ostringstream oss;
+		oss << std::put_time(tm_ptr, "%Y-%m-%d %H:%M:%S");
+		return oss.str();
+	}
+
 	const std::vector<std::string> Database::TABLE_COLS_REG { "id", "product_id", "type", "quantity", "price", "total", "datetime" };
 	std::string Database::TABLE_COLS_REG_STR {};
 	const std::vector<std::string> Database::TABLE_COLS_PROD { "id", "name", "price", "minQuantity", "description" };
@@ -12,18 +20,22 @@ namespace inventory
 	{
 		if (TABLE_COLS_REG_STR.empty() && !TABLE_COLS_REG.empty()) {
 			size_t size = TABLE_COLS_REG.size();
+			TABLE_COLS_REG_STR += "`";
 
 			for (int i = 0; i < size; i++) {
-				TABLE_COLS_REG_STR += (i == 0 ? "" : ", ") + TABLE_COLS_REG[i];
+				TABLE_COLS_REG_STR += (i == 0 ? "" : "`, `") + TABLE_COLS_REG[i];
 			}
+			TABLE_COLS_REG_STR += "`";
 		}
 
 		if (TABLE_COLS_PROD_STR.empty() && !TABLE_COLS_PROD.empty()) {
 			size_t size = TABLE_COLS_PROD.size();
+			TABLE_COLS_PROD_STR += "`";
 
 			for (int i = 0; i < size; i++) {
-				TABLE_COLS_PROD_STR += (i == 0 ? "" : ", ") + TABLE_COLS_PROD[i];
+				TABLE_COLS_PROD_STR += (i == 0 ? "" : "`, `") + TABLE_COLS_PROD[i];
 			}
+			TABLE_COLS_PROD_STR += "`";
 		}
 
 		static Database instance;
@@ -74,7 +86,7 @@ namespace inventory
 	{
 		std::stringstream query;
 
-		query << "SELECT " << TABLE_COLS_REG_STR << " FROM registry WHERE id = ?";
+		query << "SELECT id, product_id, type, quantity, price, total, UNIX_TIMESTAMP(datetime) FROM registry WHERE id = ?";
 
 		const mysqlx::Row row = session->sql(query.str())
 			.bind(registryId)
@@ -93,7 +105,7 @@ namespace inventory
 	{
 		std::stringstream query;
 
-		query << "SELECT " << TABLE_COLS_REG_STR << " FROM registry ORDER BY datetime DESC";
+		query << "SELECT id, product_id, type, quantity, price, total, UNIX_TIMESTAMP(datetime) FROM registry ORDER BY datetime DESC";
 
 		std::vector<mysqlx::Row> rows = session->sql(query.str())
 			.execute()
@@ -106,7 +118,7 @@ namespace inventory
 	{
 		std::stringstream query;
 		
-		query << "SELECT " << TABLE_COLS_REG_STR << " FROM registry ORDER BY datetime DESC LIMIT ? OFFSET ?";
+		query << "SELECT id, product_id, type, quantity, price, total, UNIX_TIMESTAMP(datetime) FROM registry ORDER BY datetime DESC LIMIT ? OFFSET ?";
 
 		std::vector<mysqlx::Row> rows = session->sql(query.str())
 			.bind(limit)
@@ -121,7 +133,7 @@ namespace inventory
 	{
 		std::stringstream query;
 
-		query << "SELECT " << TABLE_COLS_REG_STR << " FROM registry WHERE datetime BETWEEN ? AND ? ORDER BY datetime";
+		query << "SELECT id, product_id, type, quantity, price, total, UNIX_TIMESTAMP(datetime) FROM registry WHERE datetime BETWEEN ? AND ? ORDER BY datetime DESC";
 
 		std::vector<mysqlx::Row> rows = session->sql(query.str())
 			.bind(dtstart)
@@ -291,7 +303,7 @@ namespace inventory
 		reg.quantity = row[3].get<int>();
 		reg.price = row[4].get<double>();
 		reg.total = row[5].get<double>();
-		reg.datetime = row[6].get<std::string>();
+		reg.datetime = timestampToString(static_cast<time_t>(row[6].get<int>()));
 	}
 
 	void Database::registryFromRow(const std::vector<mysqlx::Row>& rows, std::vector<Registry>& regs)
@@ -306,9 +318,11 @@ namespace inventory
 				row[3].get<int>(),
 				row[4].get<double>(),
 				row[5].get<double>(),
-				row[6].get<std::string>()
+				timestampToString(static_cast<time_t>(row[6].get<int>()))
 			);
 		}
+
+		
 	}
 
 	void Database::productFromRow(const mysqlx::Row& row, Product& prod)
@@ -319,6 +333,7 @@ namespace inventory
 		prod.minQuantity = row[3].get<int>();
 		prod.description = row[4].get<std::string>();
 	}
+
 	void Database::productFromRow(const std::vector<mysqlx::Row>& rows, std::vector<Product>& prods)
 	{
 		prods.clear();
@@ -333,6 +348,7 @@ namespace inventory
 			);
 		}
 	}
+
 	std::string Database::getPlaceHolderFromTable(const std::vector<std::string>& cols, bool keyValue, bool ignoreId)
 	{
 		std::string out;

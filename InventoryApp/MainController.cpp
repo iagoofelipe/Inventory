@@ -4,14 +4,8 @@ namespace inventory
 {
 	MainController::MainController()
 		: model(AppModel::GetInstance())
-		, appView(nullptr)
 		, view(nullptr)
 	{
-	}
-
-	void MainController::SetAppView(AppView* view)
-	{
-		appView = view;
 	}
 
 	void MainController::SetView(MainView* view)
@@ -30,6 +24,7 @@ namespace inventory
 		switch (content)
 		{
 		case MainView::HOME:
+			homeController.SetView(view->GetHomeView());
 			break;
 
 		case MainView::REGISTRY:
@@ -63,6 +58,7 @@ namespace inventory
 		msg += (reg.type == RegistryType::In ? ", type IN" : ", type OUT");
 
 		wxMessageBox(msg, "Registry Saved", wxOK | wxICON_INFORMATION, view);
+
 	}
 
 	void MainController::on_RegistryView_editRequired(wxCommandEvent& evt)

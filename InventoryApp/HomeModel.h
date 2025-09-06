@@ -10,17 +10,28 @@ namespace inventory
 	public:
 		HomeModel();
 
-		const std::vector<Registry*>* GetRegistries(const wxDateTime& start, const wxDateTime& end, int interval = 0);
-		int GetNumIntervals() const;
+		void GetIntervalProperties(int* start, int* end, int* total);
+		wxString GetLabel();
+		const std::vector<Registry*>* GetValue();
+		const std::vector<Registry*>* Next();
+		const std::vector<Registry*>* Previous();
+		bool HasNext() const;
+		bool HasPrevious() const;
+		void SetDateRange(const wxDateTime& start, const wxDateTime& end);
+		int SetCurrentInterval(int index);
+		int GetCurrentInterval();
+		int Count();
+		void UpdateValues();
 
 	private:
 		AppModel& appModel;
 		Database& db;
 		std::vector<Registry> regs;
 		std::vector<std::vector<Registry*>> regsByInterval;
+		std::vector<Registry*>* pInterval;
 		std::string dtStart;
 		std::string dtEnd;
-		int maxInterval, numIntervals;
+		int maxInterval, numItems, numIntervals, indexInterval;
 	};
 }
 
